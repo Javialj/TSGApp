@@ -31,7 +31,6 @@ fun VentanaPrincipal(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             BarraS()
-            Result()
         }
     }
 }
