@@ -3,11 +3,11 @@ package com.example.tsgapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,10 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,7 +38,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -60,20 +57,20 @@ class SearchBar : ComponentActivity() {
 @Composable
 fun BarraS() {
     var query by remember { mutableStateOf("") }
-    var productos by remember { mutableStateOf<List<Producto>>(emptyList()) }
+    var productosDIA by remember { mutableStateOf<List<Producto>>(emptyList()) }
+    var productosAhorramas by remember { mutableStateOf<List<Producto>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     Column(modifier = Modifier.padding(16.dp)) {
-
-        // Sección del SearchBar
         androidx.compose.material3.SearchBar(
             query = query,
             onQueryChange = { query = it },
             onSearch = {
                 coroutineScope.launch {
                     isLoading = true
-                    productos = getProductos(query)
+                    productosDIA = getProductosDIA(query)
+                    productosAhorramas = getProductosAhorramas(query)
                     isLoading = false
                 }
             },
@@ -83,25 +80,10 @@ fun BarraS() {
             leadingIcon = {},
             trailingIcon = {}
         ) {
-            // Puedes dejar esto vacío o agregar sugerencias
-        }
-
-        Button(
-            onClick = {
-                coroutineScope.launch {
-                    isLoading = true
-                    productos = getProductos(query)
-                    isLoading = false
-                }
-            },
-            modifier = Modifier.padding(top = 8.dp)
-        ) {
-            Text("Buscar Productos")
         }
 
         Divider(modifier = Modifier.padding(vertical = 16.dp))
 
-        // Mostrar resultado
         if (isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -109,17 +91,42 @@ fun BarraS() {
             ) {
                 CircularProgressIndicator()
             }
-        } else if (productos.isEmpty()) {
-            Text("No se encontraron productos.", modifier = Modifier.padding(top = 16.dp))
         } else {
-            LazyRow(
-                modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp)
-            ) {
-                items(productos.size) { index ->
-                    val producto = productos[index]
-                    ProductoItem(producto = producto)
+            if (productosDIA.isEmpty() && productosAhorramas.isEmpty()) {
+                Text("No se encontraron productos.", modifier = Modifier.padding(top = 16.dp))
+            } else {
+                Column {
+                    if (productosDIA.isNotEmpty()) {
+                        Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        LazyRow(
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp)
+                        ) {
+                            items(productosDIA.size) { index ->
+                                ProductoItem(producto = productosDIA[index])
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    if (productosAhorramas.isNotEmpty()) {
+                        Text("Productos Ahorramas", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        LazyRow(
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp)
+                        ) {
+                            items(productosAhorramas.size) { index ->
+                                ProductoItem(producto = productosAhorramas[index])
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -128,17 +135,18 @@ fun BarraS() {
 
 @Composable
 fun ProductoItem(producto: Producto) {
+    var expandido by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .width(150.dp)
-            .padding(8.dp),
+            .clickable{ expandido = !expandido },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
             modifier = Modifier.padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Cargar imagen usando Coil
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(producto.imagenUrl)
@@ -151,15 +159,39 @@ fun ProductoItem(producto: Producto) {
                 contentScale = ContentScale.Crop
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            if (expandido) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = producto.nombre,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = producto.nombre,
+                    fontSize = 14.sp,
+                    maxLines = 2,
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
 
-            Text(
-                text = producto.nombre,
-                fontSize = 14.sp,
-                maxLines = 2,
-                textAlign = TextAlign.Center,
-                overflow = TextOverflow.Ellipsis
-            )
+            if (producto.ofertaprecio.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = producto.ofertaprecio,
+                    fontSize = 14.sp
+                )
+            }
+
+            if (producto.ofertaproducto.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = producto.ofertaproducto,
+                    fontSize = 14.sp
+                )
+            }
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -173,17 +205,6 @@ fun ProductoItem(producto: Producto) {
     }
 }
 
-//https://www.ahorramas.com/buscador?q=
-//https://tienda.mercadona.es/search-results?query=
-//https://www.carrefour.es/?query=
-//https://www.lidl.es/es/search?query=
-//https://www.compraonline.alcampo.es/search?q=
-//https://www.dia.es/search?q=
 
 
 
-@Preview
-@Composable
-fun PreviewBarra() {
-    BarraS()
-}
