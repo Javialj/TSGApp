@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.example.tsgapp
 
 import android.os.Bundle
@@ -33,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-class ActivityVentanaUsuarios : ComponentActivity() {
+class VentanaUsuarios : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -44,7 +42,7 @@ class ActivityVentanaUsuarios : ComponentActivity() {
 
 
 @Composable
-fun VentanaUsuarios(modifier: Modifier = Modifier) {
+fun Usuarios(modifier: Modifier = Modifier) {
     Column(
         modifier
             .fillMaxSize()
@@ -225,5 +223,5 @@ fun VentanaUsuarios(modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun VentanaUsuariosPreview() {
-    VentanaUsuarios()
+    Usuarios()
 }

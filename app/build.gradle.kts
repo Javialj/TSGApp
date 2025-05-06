@@ -46,7 +46,11 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:2.3.5")
     implementation("io.ktor:ktor-client-serialization:2.3.5")
     implementation("io.coil-kt:coil-compose:2.4.0")
-
+    implementation("androidx.navigation:navigation-compose:2.8.9")
+    implementation("androidx.navigation:navigation-ui-ktx:2.8.9")
+    implementation("androidx.compose.ui:ui:1.8.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.8.0")
+    implementation("androidx.compose.material3:material3:1.3.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

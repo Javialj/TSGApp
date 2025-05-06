@@ -72,9 +72,35 @@ suspend fun getProductosAhorramas(query: String): List<Producto> {
     }
 }
 
+suspend fun getProductosCarrefour(query: String): List<Producto> {
+    val encodedQuery = URLEncoder.encode(query, "UTF-8").replace("+", "%20")
+    return try {
+        val url = "//https://www.carrefour.es/?query=$encodedQuery"
+        val document = withContext(Dispatchers.IO) {
+            Jsoup.connect(url).get()
+        }
 
+        val items = document.select("li.x-base-grid__result")
 
+        items.mapNotNull { element ->
+            val nombre = element.selectFirst("p.x-line-clamp-3")?.text().orEmpty()
+            val precio = element.selectFirst("div.x-result-current-price span.x-currency")?.text().orEmpty()
+            val imgElement = element.selectFirst("img.x-result-picture-image")
+            val imageUrl = imgElement?.absUrl("src").orEmpty()
+
+            val ofertaproducto = element.selectFirst(".product-special-offer-promotion-title")?.text().orEmpty()
+            val ofertaprecio = element.selectFirst(".product-special-offer-discount-percentage-strikethrough-price")?.text().orEmpty()
+
+            if (nombre.isNotBlank() && imageUrl.isNotBlank()) {
+                Producto(nombre, precio, imageUrl, ofertaproducto, ofertaprecio)
+            } else {
+                null
+            }
+        }
+    } catch (e: Exception) {
+        Log.e("JsoupError", "Error parsing HTML", e)
+        emptyList()
+    }
+}
 
 //https://tienda.mercadona.es/search-results?query=
-//https://www.carrefour.es/?query=
-//https://www.lidl.es/es/search?query=
