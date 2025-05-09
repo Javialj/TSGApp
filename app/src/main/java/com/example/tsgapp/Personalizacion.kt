@@ -7,6 +7,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,12 +18,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -56,21 +68,46 @@ fun AjustesPersonalizados() {
     var sliderPosition by remember { mutableFloatStateOf(15f) }
     val purple = Color(0xFF6446AB)
     val lightPurple = Color(0xFF8673B4)
+    var mostrarMenu by remember { mutableStateOf(false) }
+    var idiomaSeleccionado by remember { mutableStateOf("Español") }
+
+    TopAppBar(
+        navigationIcon = {
+            IconButton(onClick = { /* do something */ }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Localized description"
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.primary,
+        ),
+        title = {
+            Text("Small Top App Bar")
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 15.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 15.dp, vertical = 55.dp)
     ) {
+
+        // Switch para tema
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth().padding(vertical = 15.dp)
-        ){
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 15.dp)
+        ) {
             Text("Tema de la aplicación:", fontSize = 20.sp)
             Switch(
                 checked = checked,
-                onCheckedChange = {
-                    checked = it
-                },
+                onCheckedChange = { checked = it },
                 thumbContent = if (checked) {
                     {
                         Image(
@@ -87,22 +124,20 @@ fun AjustesPersonalizados() {
                             modifier = Modifier.size(25.dp)
                         )
                     }
-                },
+                }
             )
         }
-        Text("Tamaño de la letra:", fontSize = 20.sp)
 
+        // Slider para tamaño de letra
+        Text("Tamaño de la letra:", fontSize = 20.sp)
         Spacer(modifier = Modifier.height(15.dp))
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "Valor: ${sliderPosition.toInt()}", fontSize = 15.sp)
-
             Spacer(modifier = Modifier.padding(horizontal = 5.dp))
-
             Slider(
                 value = sliderPosition,
                 onValueChange = { sliderPosition = it },
@@ -121,7 +156,6 @@ fun AjustesPersonalizados() {
                             size = Size(size.width, 4.dp.toPx()),
                             cornerRadius = CornerRadius(2.dp.toPx())
                         )
-
                         val normalizedValue = (sliderPosition - 15f) / (50f - 15f)
                         val filledWidth = normalizedValue * size.width
                         drawRoundRect(
@@ -136,7 +170,7 @@ fun AjustesPersonalizados() {
                     Box(
                         modifier = Modifier
                             .size(size)
-                            .clip(CircleShape) 
+                            .clip(CircleShape)
                             .background(Color.White)
                             .border(9.dp, purple)
                     )
@@ -144,15 +178,69 @@ fun AjustesPersonalizados() {
             )
         }
 
+        // Menú de idioma (TopAppBar con DropdownMenu)
         Spacer(modifier = Modifier.height(15.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(64.dp) // Altura recomendada por Material3
+                .clickable { mostrarMenu = true }, // Hacer toda la fila clickeable
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Idioma:", fontSize = 20.sp)
+            Box {
+                // TopAppBar solo muestra el título y el botón
+                TopAppBar(
+                    title = { Text(idiomaSeleccionado) },
+                    modifier = Modifier
+                        .width(150.dp)
+                        .height(30.dp),
+                    actions = {
+                        IconButton(onClick = { mostrarMenu = true }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.down),
+                                contentDescription = "Opciones"
+                            )
+                        }
+                    }
+                )
 
-        Text("Idioma:")
+                // DropdownMenu fuera del TopAppBar pero dentro del Box
+                DropdownMenu(
+                    expanded = mostrarMenu,
+                    onDismissRequest = { mostrarMenu = false },
+                    modifier = Modifier.width(150.dp)
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Español", fontSize = 20.sp) },
+                        onClick = {
+                            idiomaSeleccionado = "Español"
+                            mostrarMenu = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Inglés", fontSize = 20.sp) },
+                        onClick = {
+                            idiomaSeleccionado = "Inglés"
+                            mostrarMenu = false
+                        }
+                    )
+                }
+            }
+        }
 
-        Spacer(modifier = Modifier.height(15.dp))
-
-        
+        // Botón Guardar
+        Spacer(modifier = Modifier.weight(1f)) // Espaciador flexible
+        Button(
+            onClick = { /*TODO()*/ },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text("Guardar")
+        }
     }
 }
+
 
 @Preview
 @Composable
