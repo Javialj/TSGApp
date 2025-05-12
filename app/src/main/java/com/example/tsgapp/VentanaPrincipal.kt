@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.tsgapp.ui.theme.ThemeState
 import kotlinx.coroutines.launch
 
 class VentanaPrincipal : ComponentActivity() {
@@ -78,7 +79,7 @@ fun Principal() {
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         ) {
             SearchBar(
                 query = query,
@@ -88,7 +89,7 @@ fun Principal() {
                         isLoading = true
                         productosDIA = getProductosDIA(query)
                         productosAhorramas = getProductosAhorramas(query)
-                        productosCarrefour = getProductosCarrefour(query)
+                        productosCarrefour = getProductosCorteIngles(query)
                         isLoading = false
                     }
                 },
@@ -142,15 +143,29 @@ fun Principal() {
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                                        Button(
-                                            onClick = {/**/},
-                                            colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                        ) {
-                                            Image(
-                                                painter = painterResource(id = R.drawable.favoritep),
-                                                contentDescription = null,
-                                                modifier = Modifier.size(20.dp)
-                                            )
+
+                                        if (!ThemeState.isDarkMode){
+                                            Button(
+                                                onClick = {/**/},
+                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.favoritep),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                            }
+                                        } else {
+                                            Button(
+                                                onClick = {/**/},
+                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.favoritepsun),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(17.dp)
+                                                )
+                                            }
                                         }
                                     }
                                     LazyRow(
@@ -196,15 +211,28 @@ fun Principal() {
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text("Productos Ahorramas", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                                        Button(
-                                            onClick = {/**/},
-                                            colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                        ) {
-                                            Image(
-                                                painter = painterResource(id = R.drawable.favoritep),
-                                                contentDescription = null,
-                                                modifier = Modifier.size(20.dp)
-                                            )
+                                        if (!ThemeState.isDarkMode){
+                                            Button(
+                                                onClick = {/**/},
+                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.favoritep),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                            }
+                                        } else {
+                                            Button(
+                                                onClick = {/**/},
+                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.favoritepsun),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(17.dp)
+                                                )
+                                            }
                                         }
                                     }
                                     LazyRow(
@@ -231,15 +259,28 @@ fun Principal() {
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 18.sp
                                             )
-                                            Button(
-                                                onClick = {/**/ },
-                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.favoritep),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
+                                            if (!ThemeState.isDarkMode){
+                                                Button(
+                                                    onClick = {/**/},
+                                                    colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                                ) {
+                                                    Image(
+                                                        painter = painterResource(id = R.drawable.favoritep),
+                                                        contentDescription = null,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                }
+                                            } else {
+                                                Button(
+                                                    onClick = {/**/},
+                                                    colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                                ) {
+                                                    Image(
+                                                        painter = painterResource(id = R.drawable.favoritepsun),
+                                                        contentDescription = null,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                }
                                             }
                                         }
                                         Spacer(modifier = Modifier.height(16.dp))
@@ -254,15 +295,28 @@ fun Principal() {
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text("Productos Carrefour", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                                        Button(
-                                            onClick = {/**/},
-                                            colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                        ) {
-                                            Image(
-                                                painter = painterResource(id = R.drawable.favoritep),
-                                                contentDescription = null,
-                                                modifier = Modifier.size(20.dp)
-                                            )
+                                        if (!ThemeState.isDarkMode){
+                                            Button(
+                                                onClick = {/**/},
+                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.favoritep),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                            }
+                                        } else {
+                                            Button(
+                                                onClick = {/**/},
+                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.favoritepsun),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                            }
                                         }
                                     }
                                     LazyRow(
@@ -309,15 +363,6 @@ fun Principal() {
                     }
                 }
             }
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .navigationBarsPadding(),
-            contentAlignment = Alignment.Center
-        ) {
-            BarraDespla()
         }
     }
 }

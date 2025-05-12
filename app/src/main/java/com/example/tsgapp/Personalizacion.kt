@@ -7,10 +7,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,12 +23,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
@@ -48,9 +50,11 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tsgapp.ui.theme.ThemeState
 
 class Personalizacion : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,36 +68,39 @@ class Personalizacion : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AjustesPersonalizados() {
-    var checked by remember { mutableStateOf(true) }
-    var sliderPosition by remember { mutableFloatStateOf(15f) }
+    var sliderPosition by remember { mutableFloatStateOf(20f) }
     val purple = Color(0xFF6446AB)
     val lightPurple = Color(0xFF8673B4)
     var mostrarMenu by remember { mutableStateOf(false) }
     var idiomaSeleccionado by remember { mutableStateOf("Español") }
 
-    TopAppBar(
-        navigationIcon = {
-            IconButton(onClick = { /* do something */ }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Localized description"
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
-        title = {
-            Text("Small Top App Bar")
-        },
-        modifier = Modifier.fillMaxWidth()
-    )
 
+    Scaffold(
+    topBar = {
+        TopAppBar(
+            navigationIcon = {
+                IconButton(onClick = { /* do something */ }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Localized description"
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+            ),
+            title = {
+                Text("Small Top App Bar")
+            },
+        )
+    },
+) {padding ->
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 15.dp, vertical = 55.dp)
+            .padding(padding)
+            .padding(horizontal = 15.dp)
     ) {
 
         // Switch para tema
@@ -106,9 +113,9 @@ fun AjustesPersonalizados() {
         ) {
             Text("Tema de la aplicación:", fontSize = 20.sp)
             Switch(
-                checked = checked,
-                onCheckedChange = { checked = it },
-                thumbContent = if (checked) {
+                checked = ThemeState.isDarkMode,
+                onCheckedChange = { ThemeState.toggleTheme() }, // Cambia el tema global
+                thumbContent = if (ThemeState.isDarkMode) {
                     {
                         Image(
                             painter = painterResource(id = R.drawable.moon),
@@ -132,80 +139,81 @@ fun AjustesPersonalizados() {
         Text("Tamaño de la letra:", fontSize = 20.sp)
         Spacer(modifier = Modifier.height(15.dp))
 
+        Text(text = "Valor: ${sliderPosition.toInt()}", fontSize = 20.sp)
+        Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+        Slider(
+            value = sliderPosition,
+            onValueChange = { sliderPosition = it },
+            valueRange = 20f..50f,
+            steps = 5,
+            modifier = Modifier.fillMaxWidth(),
+            colors = SliderDefaults.colors(
+                thumbColor = Color.White,
+                activeTrackColor = Color.Blue,
+                inactiveTrackColor = Color.Gray
+            ),
+            track = { sliderSizes ->
+                Canvas(modifier = Modifier.fillMaxWidth()) {
+                    drawRoundRect(
+                        color = Color.Gray,
+                        size = Size(size.width, 4.dp.toPx()),
+                        cornerRadius = CornerRadius(2.dp.toPx())
+                    )
+                    val normalizedValue = (sliderPosition - 20f) / (50f - 20f)
+                    val filledWidth = normalizedValue * size.width
+                    drawRoundRect(
+                        color = lightPurple,
+                        size = Size(filledWidth, 4.dp.toPx()),
+                        cornerRadius = CornerRadius(2.dp.toPx())
+                    )
+                }
+            },
+            thumb = {
+                val size = 20.dp
+                Box(
+                    modifier = Modifier
+                        .size(size)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .border(9.dp, purple)
+                )
+            }
+        )
+
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Valor: ${sliderPosition.toInt()}", fontSize = 15.sp)
-            Spacer(modifier = Modifier.padding(horizontal = 5.dp))
-            Slider(
-                value = sliderPosition,
-                onValueChange = { sliderPosition = it },
-                valueRange = 15f..50f,
-                steps = 5,
-                modifier = Modifier.fillMaxWidth(),
-                colors = SliderDefaults.colors(
-                    thumbColor = Color.White,
-                    activeTrackColor = Color.Blue,
-                    inactiveTrackColor = Color.Gray
-                ),
-                track = { sliderSizes ->
-                    Canvas(modifier = Modifier.fillMaxWidth()) {
-                        drawRoundRect(
-                            color = Color.Gray,
-                            size = Size(size.width, 4.dp.toPx()),
-                            cornerRadius = CornerRadius(2.dp.toPx())
-                        )
-                        val normalizedValue = (sliderPosition - 15f) / (50f - 15f)
-                        val filledWidth = normalizedValue * size.width
-                        drawRoundRect(
-                            color = lightPurple,
-                            size = Size(filledWidth, 4.dp.toPx()),
-                            cornerRadius = CornerRadius(2.dp.toPx())
-                        )
-                    }
-                },
-                thumb = {
-                    val size = 20.dp
-                    Box(
-                        modifier = Modifier
-                            .size(size)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .border(9.dp, purple)
-                    )
-                }
-            )
-        }
-
-        // Menú de idioma (TopAppBar con DropdownMenu)
-        Spacer(modifier = Modifier.height(15.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(64.dp) // Altura recomendada por Material3
-                .clickable { mostrarMenu = true }, // Hacer toda la fila clickeable
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
             Text("Idioma:", fontSize = 20.sp)
+
+            Spacer(modifier = Modifier.width(16.dp)) // Espaciado entre texto y botón
+
             Box {
-                // TopAppBar solo muestra el título y el botón
-                TopAppBar(
-                    title = { Text(idiomaSeleccionado) },
+                // Botón personalizado para selección de idioma
+                Button(
+                    onClick = { mostrarMenu = true },
                     modifier = Modifier
                         .width(150.dp)
-                        .height(30.dp),
-                    actions = {
-                        IconButton(onClick = { mostrarMenu = true }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.down),
-                                contentDescription = "Opciones"
-                            )
-                        }
-                    }
-                )
-
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    contentPadding = PaddingValues(8.dp)
+                ) {
+                    Text(
+                        text = idiomaSeleccionado,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Start,
+                        fontSize = 16.sp
+                    )
+                    Icon(
+                        painter = painterResource(id = R.drawable.down),
+                        contentDescription = "Seleccionar idioma",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
                 // DropdownMenu fuera del TopAppBar pero dentro del Box
                 DropdownMenu(
                     expanded = mostrarMenu,
@@ -237,6 +245,7 @@ fun AjustesPersonalizados() {
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             Text("Guardar")
+            }
         }
     }
 }

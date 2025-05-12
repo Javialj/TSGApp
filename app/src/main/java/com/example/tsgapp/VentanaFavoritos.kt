@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 
 class VentanaFavoritos : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,12 +35,7 @@ fun Favoritos() {
             verticalArrangement = Arrangement.SpaceBetween) {
             Text("Aqui deben ir los favoritos")
         }
-        Box(modifier = Modifier
-            .align(Alignment.BottomCenter)
-            .navigationBarsPadding()
-        ){
-            BarraDespla()
-        }
+
     }
 }
 
