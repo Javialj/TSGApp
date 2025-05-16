@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tsgapp.ui.theme.TamañoLetra
 
 class Cuenta : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,7 +98,7 @@ fun RecuperarContrasena() {
     ) {
         Text(
             text = "Olvidaste tu contraseña?",
-            fontSize = 18.sp,
+            fontSize = TamañoLetra.tamañoFuente.sp,
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             color = Color.Blue
@@ -148,7 +149,8 @@ fun LoginButton(text: String, iconRes: Int) {
             Text(
                 text = text,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                fontSize = TamañoLetra.tamañoFuente.sp
             )
             Image(
                 painter = painterResource(id = iconRes),

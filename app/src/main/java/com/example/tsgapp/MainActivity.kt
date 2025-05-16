@@ -25,6 +25,7 @@ import androidx.compose.material3.MultiChoiceSegmentedButtonRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
@@ -42,6 +43,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tsgapp.ui.theme.TSGAppTheme
+import com.example.tsgapp.ui.theme.TamañoLetra
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +51,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TSGAppTheme {
-                AppNavigation()
+                Surface {
+                    AppNavigation()
+                }
             }
         }
     }
@@ -166,7 +170,7 @@ fun SettingItem(text: String, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text)
+            Text(text, fontSize = TamañoLetra.tamañoFuente.sp)
             Image(
                 painter = next,
                 contentDescription = "Next",

@@ -38,7 +38,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -54,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tsgapp.ui.theme.TamañoLetra
 import com.example.tsgapp.ui.theme.ThemeState
 
 class Personalizacion : ComponentActivity() {
@@ -68,11 +68,9 @@ class Personalizacion : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AjustesPersonalizados() {
-    var sliderPosition by remember { mutableFloatStateOf(20f) }
-    val purple = Color(0xFF6446AB)
-    val lightPurple = Color(0xFF8673B4)
     var mostrarMenu by remember { mutableStateOf(false) }
     var idiomaSeleccionado by remember { mutableStateOf("Español") }
+    val primaryColor = MaterialTheme.colorScheme.primary
 
 
     Scaffold(
@@ -87,11 +85,12 @@ fun AjustesPersonalizados() {
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
             ),
             title = {
-                Text("Small Top App Bar")
+                Text("Personalización:")
             },
         )
     },
@@ -111,7 +110,7 @@ fun AjustesPersonalizados() {
                 .fillMaxWidth()
                 .padding(vertical = 15.dp)
         ) {
-            Text("Tema de la aplicación:", fontSize = 20.sp)
+            Text("Tema de la aplicación:", fontSize = TamañoLetra.tamañoFuente.sp)
             Switch(
                 checked = ThemeState.isDarkMode,
                 onCheckedChange = { ThemeState.toggleTheme() }, // Cambia el tema global
@@ -136,15 +135,19 @@ fun AjustesPersonalizados() {
         }
 
         // Slider para tamaño de letra
-        Text("Tamaño de la letra:", fontSize = 20.sp)
+        Text("Tamaño de la letra:", fontSize = TamañoLetra.tamañoFuente.sp)
         Spacer(modifier = Modifier.height(15.dp))
 
-        Text(text = "Valor: ${sliderPosition.toInt()}", fontSize = 20.sp)
+        Text(text = "Valor: ${TamañoLetra.tamañoFuente}", fontSize = TamañoLetra.tamañoFuente.sp)
         Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+        val thumbOffset = 10.dp // Ajusta este valor si ves que el thumb está centrado y afecta el cálculo
+
         Slider(
-            value = sliderPosition,
-            onValueChange = { sliderPosition = it },
-            valueRange = 20f..50f,
+            value = TamañoLetra.tamañoFuente.toFloat(),
+            onValueChange = { newValue ->
+                TamañoLetra.tamañoFuente = newValue.toInt()
+            },
+            valueRange = 20f..30f,
             steps = 5,
             modifier = Modifier.fillMaxWidth(),
             colors = SliderDefaults.colors(
@@ -152,19 +155,27 @@ fun AjustesPersonalizados() {
                 activeTrackColor = Color.Blue,
                 inactiveTrackColor = Color.Gray
             ),
-            track = { sliderSizes ->
+            track = { sliderPositions ->
                 Canvas(modifier = Modifier.fillMaxWidth()) {
+                    val trackHeight = 4.dp.toPx()
+                    val cornerRadius = 2.dp.toPx()
+
+                    // Dibuja la barra inactiva completa
                     drawRoundRect(
                         color = Color.Gray,
-                        size = Size(size.width, 4.dp.toPx()),
-                        cornerRadius = CornerRadius(2.dp.toPx())
+                        size = Size(size.width, trackHeight),
+                        cornerRadius = CornerRadius(cornerRadius)
                     )
-                    val normalizedValue = (sliderPosition - 20f) / (50f - 20f)
+
+                    // Calcula el ancho lleno usando el valor actual del slider
+                    val normalizedValue = (TamañoLetra.tamañoFuente - 20) / (30 - 20f)
                     val filledWidth = normalizedValue * size.width
+
+                    // Dibuja solo la parte activa (hasta donde va el thumb)
                     drawRoundRect(
-                        color = lightPurple,
-                        size = Size(filledWidth, 4.dp.toPx()),
-                        cornerRadius = CornerRadius(2.dp.toPx())
+                        color = primaryColor,
+                        size = Size(filledWidth, trackHeight),
+                        cornerRadius = CornerRadius(cornerRadius)
                     )
                 }
             },
@@ -174,8 +185,8 @@ fun AjustesPersonalizados() {
                     modifier = Modifier
                         .size(size)
                         .clip(CircleShape)
-                        .background(Color.White)
-                        .border(9.dp, purple)
+                        .background(primaryColor)
+                        .border(2.dp, primaryColor)
                 )
             }
         )
@@ -185,7 +196,7 @@ fun AjustesPersonalizados() {
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Idioma:", fontSize = 20.sp)
+            Text("Idioma:", fontSize = TamañoLetra.tamañoFuente.sp)
 
             Spacer(modifier = Modifier.width(16.dp)) // Espaciado entre texto y botón
 
@@ -206,7 +217,7 @@ fun AjustesPersonalizados() {
                         text = idiomaSeleccionado,
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Start,
-                        fontSize = 16.sp
+                        fontSize = TamañoLetra.tamañoFuente.sp
                     )
                     Icon(
                         painter = painterResource(id = R.drawable.down),
@@ -221,14 +232,14 @@ fun AjustesPersonalizados() {
                     modifier = Modifier.width(150.dp)
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Español", fontSize = 20.sp) },
+                        text = { Text("Español", fontSize = TamañoLetra.tamañoFuente.sp) },
                         onClick = {
                             idiomaSeleccionado = "Español"
                             mostrarMenu = false
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("Inglés", fontSize = 20.sp) },
+                        text = { Text("Inglés", fontSize = TamañoLetra.tamañoFuente.sp) },
                         onClick = {
                             idiomaSeleccionado = "Inglés"
                             mostrarMenu = false

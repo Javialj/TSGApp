@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.tsgapp.ui.theme.TamañoLetra
 import com.example.tsgapp.ui.theme.ThemeState
 import kotlinx.coroutines.launch
 
@@ -100,7 +101,9 @@ fun Principal() {
                 modifier = Modifier.fillMaxWidth(),
                 enabled = true,
                 shape = MaterialTheme.shapes.medium,
-                colors = SearchBarDefaults.colors(),
+                colors = SearchBarDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                ),
                 tonalElevation = 0.dp,
                 shadowElevation = 0.dp,
                 windowInsets = SearchBarDefaults.windowInsets,
@@ -133,7 +136,7 @@ fun Principal() {
                         }
                     } else {
                         if (productosDIA.isEmpty() && productosAhorramas.isEmpty()) {
-                            Text("No se encontraron productos.")
+                            Text("No se encontraron productos.", fontSize = TamañoLetra.tamañoFuente.sp)
                         } else {
                             Column {
                                 if (productosDIA.isNotEmpty()) {
@@ -142,7 +145,7 @@ fun Principal() {
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                        Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
 
                                         if (!ThemeState.isDarkMode){
                                             Button(
@@ -186,7 +189,7 @@ fun Principal() {
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                            Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
                                             Button(
                                                 onClick = {/**/},
                                                 colors = ButtonDefaults.buttonColors(Color.Transparent)
@@ -210,7 +213,7 @@ fun Principal() {
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("Productos Ahorramas", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                        Text("Productos Ahorramas", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
                                         if (!ThemeState.isDarkMode){
                                             Button(
                                                 onClick = {/**/},
@@ -257,7 +260,7 @@ fun Principal() {
                                             Text(
                                                 "Productos Ahorrmas",
                                                 fontWeight = FontWeight.Bold,
-                                                fontSize = 18.sp
+                                                fontSize = TamañoLetra.tamañoFuente.sp
                                             )
                                             if (!ThemeState.isDarkMode){
                                                 Button(
@@ -294,7 +297,7 @@ fun Principal() {
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("Productos Carrefour", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                        Text("Productos Carrefour", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
                                         if (!ThemeState.isDarkMode){
                                             Button(
                                                 onClick = {/**/},
@@ -341,7 +344,7 @@ fun Principal() {
                                             Text(
                                                 "Productos Carrefour",
                                                 fontWeight = FontWeight.Bold,
-                                                fontSize = 18.sp
+                                                fontSize = TamañoLetra.tamañoFuente.sp
                                             )
                                             Button(
                                                 onClick = {/**/ },
@@ -355,7 +358,7 @@ fun Principal() {
                                             }
                                         }
                                         Spacer(modifier = Modifier.height(16.dp))
-                                        Text("No se ha encontrado resultados en este supermercado")
+                                        Text("No se ha encontrado resultados en este supermercado", fontSize = TamañoLetra.tamañoFuente.sp)
                                     }
                                 }
                             }
@@ -375,7 +378,10 @@ fun ProductoItem(producto: Producto) {
         modifier = Modifier
             .width(150.dp)
             .clickable { expandido = !expandido },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
     ) {
         Column(
             modifier = Modifier.padding(8.dp),
@@ -396,14 +402,14 @@ fun ProductoItem(producto: Producto) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = producto.nombre,
-                    fontSize = 14.sp,
+                    fontSize = TamañoLetra.tamañoFuente.sp,
                     textAlign = TextAlign.Center
                 )
             } else {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = producto.nombre,
-                    fontSize = 14.sp,
+                    fontSize = TamañoLetra.tamañoFuente.sp,
                     maxLines = 2,
                     textAlign = TextAlign.Center,
                     overflow = TextOverflow.Ellipsis
@@ -413,7 +419,7 @@ fun ProductoItem(producto: Producto) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = producto.ofertaprecio,
-                    fontSize = 14.sp
+                    fontSize = TamañoLetra.tamañoFuente.sp
                 )
             }
             if (producto.ofertaproducto.isNotBlank()) {
@@ -427,8 +433,7 @@ fun ProductoItem(producto: Producto) {
             Text(
                 text = producto.precio,
                 fontWeight = FontWeight.Bold,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.primary
+                fontSize = TamañoLetra.tamañoFuente.sp
             )
         }
     }
