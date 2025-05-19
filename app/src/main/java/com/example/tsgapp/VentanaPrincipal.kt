@@ -78,43 +78,46 @@ fun Principal() {
     var isLoading by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
+
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
-            SearchBar(
-                query = query,
-                onQueryChange = { query = it },
-                onSearch = {
-                    coroutineScope.launch {
-                        isLoading = true
-                        productosDIA = getProductosDIA(query)
-                        productosAhorramas = getProductosAhorramas(query)
-                        productosCarrefour = getProductosCorteIngles(query)
-                        isLoading = false
-                    }
-                },
-                active = false,
-                onActiveChange = {},
-                placeholder = { Text("Buscar...") },
-                trailingIcon = { /* Opcional: agrega un icono de limpiar búsqueda */ },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = true,
-                shape = MaterialTheme.shapes.medium,
-                colors = SearchBarDefaults.colors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                ),
-                tonalElevation = 0.dp,
-                shadowElevation = 0.dp,
-                windowInsets = SearchBarDefaults.windowInsets,
-                interactionSource = remember { MutableInteractionSource() },
-                content = {}
-            )
+            Row {
+                SearchBar(
+                    query = query,
+                    onQueryChange = { query = it },
+                    onSearch = {
+                        coroutineScope.launch {
+                            isLoading = true
+                            productosDIA = getProductosDIA(query)
+                            productosAhorramas = getProductosAhorramas(query)
+                            productosCarrefour = getProductosCorteIngles(query)
+                            isLoading = false
+                        }
+                    },
+                    active = false,
+                    onActiveChange = {},
+                    placeholder = { Text("Buscar...") },
+                    trailingIcon = { /* Opcional: agrega un icono de limpiar búsqueda */ },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = true,
+                    shape = MaterialTheme.shapes.medium,
+                    colors = SearchBarDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    ),
+                    tonalElevation = 0.dp,
+                    shadowElevation = 0.dp,
+                    windowInsets = SearchBarDefaults.windowInsets,
+                    interactionSource = remember { MutableInteractionSource() },
+                    content = {}
+                )
+            }
             Divider(modifier = Modifier.padding(top = 16.dp))
         }
         Box(
             modifier = Modifier
-                .weight(1f) // Ahora sí funciona, porque está dentro de un Column
+                .weight(1f)
                 .fillMaxSize()
         ){
             LazyColumn(
@@ -164,7 +167,7 @@ fun Principal() {
                                                 colors = ButtonDefaults.buttonColors(Color.Transparent)
                                             ) {
                                                 Image(
-                                                    painter = painterResource(id = R.drawable.favoritepsun),
+                                                    painter = painterResource(id = R.drawable.favoritepdark),
                                                     contentDescription = null,
                                                     modifier = Modifier.size(17.dp)
                                                 )
@@ -231,7 +234,7 @@ fun Principal() {
                                                 colors = ButtonDefaults.buttonColors(Color.Transparent)
                                             ) {
                                                 Image(
-                                                    painter = painterResource(id = R.drawable.favoritepsun),
+                                                    painter = painterResource(id = R.drawable.favoritepdark),
                                                     contentDescription = null,
                                                     modifier = Modifier.size(17.dp)
                                                 )
@@ -279,7 +282,7 @@ fun Principal() {
                                                     colors = ButtonDefaults.buttonColors(Color.Transparent)
                                                 ) {
                                                     Image(
-                                                        painter = painterResource(id = R.drawable.favoritepsun),
+                                                        painter = painterResource(id = R.drawable.favoritepdark),
                                                         contentDescription = null,
                                                         modifier = Modifier.size(20.dp)
                                                     )
@@ -315,7 +318,7 @@ fun Principal() {
                                                 colors = ButtonDefaults.buttonColors(Color.Transparent)
                                             ) {
                                                 Image(
-                                                    painter = painterResource(id = R.drawable.favoritepsun),
+                                                    painter = painterResource(id = R.drawable.favoritepdark),
                                                     contentDescription = null,
                                                     modifier = Modifier.size(20.dp)
                                                 )

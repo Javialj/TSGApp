@@ -76,14 +76,6 @@ fun AjustesPersonalizados() {
     Scaffold(
     topBar = {
         TopAppBar(
-            navigationIcon = {
-                IconButton(onClick = { /* do something */ }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Localized description"
-                    )
-                }
-            },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 titleContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -102,7 +94,6 @@ fun AjustesPersonalizados() {
             .padding(horizontal = 15.dp)
     ) {
 
-        // Switch para tema
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -113,7 +104,7 @@ fun AjustesPersonalizados() {
             Text("Tema de la aplicación:", fontSize = TamañoLetra.tamañoFuente.sp)
             Switch(
                 checked = ThemeState.isDarkMode,
-                onCheckedChange = { ThemeState.toggleTheme() }, // Cambia el tema global
+                onCheckedChange = { ThemeState.toggleTheme() },
                 thumbContent = if (ThemeState.isDarkMode) {
                     {
                         Image(
@@ -134,13 +125,11 @@ fun AjustesPersonalizados() {
             )
         }
 
-        // Slider para tamaño de letra
         Text("Tamaño de la letra:", fontSize = TamañoLetra.tamañoFuente.sp)
         Spacer(modifier = Modifier.height(15.dp))
 
         Text(text = "Valor: ${TamañoLetra.tamañoFuente}", fontSize = TamañoLetra.tamañoFuente.sp)
         Spacer(modifier = Modifier.padding(horizontal = 5.dp))
-        val thumbOffset = 10.dp // Ajusta este valor si ves que el thumb está centrado y afecta el cálculo
 
         Slider(
             value = TamañoLetra.tamañoFuente.toFloat(),
@@ -148,7 +137,7 @@ fun AjustesPersonalizados() {
                 TamañoLetra.tamañoFuente = newValue.toInt()
             },
             valueRange = 20f..30f,
-            steps = 5,
+            steps = 4,
             modifier = Modifier.fillMaxWidth(),
             colors = SliderDefaults.colors(
                 thumbColor = Color.White,
@@ -160,18 +149,15 @@ fun AjustesPersonalizados() {
                     val trackHeight = 4.dp.toPx()
                     val cornerRadius = 2.dp.toPx()
 
-                    // Dibuja la barra inactiva completa
                     drawRoundRect(
                         color = Color.Gray,
                         size = Size(size.width, trackHeight),
                         cornerRadius = CornerRadius(cornerRadius)
                     )
 
-                    // Calcula el ancho lleno usando el valor actual del slider
                     val normalizedValue = (TamañoLetra.tamañoFuente - 20) / (30 - 20f)
                     val filledWidth = normalizedValue * size.width
 
-                    // Dibuja solo la parte activa (hasta donde va el thumb)
                     drawRoundRect(
                         color = primaryColor,
                         size = Size(filledWidth, trackHeight),
@@ -198,10 +184,9 @@ fun AjustesPersonalizados() {
         ) {
             Text("Idioma:", fontSize = TamañoLetra.tamañoFuente.sp)
 
-            Spacer(modifier = Modifier.width(16.dp)) // Espaciado entre texto y botón
+            Spacer(modifier = Modifier.width(16.dp))
 
             Box {
-                // Botón personalizado para selección de idioma
                 Button(
                     onClick = { mostrarMenu = true },
                     modifier = Modifier
@@ -225,7 +210,7 @@ fun AjustesPersonalizados() {
                         modifier = Modifier.size(20.dp)
                     )
                 }
-                // DropdownMenu fuera del TopAppBar pero dentro del Box
+
                 DropdownMenu(
                     expanded = mostrarMenu,
                     onDismissRequest = { mostrarMenu = false },
@@ -243,19 +228,10 @@ fun AjustesPersonalizados() {
                         onClick = {
                             idiomaSeleccionado = "Inglés"
                             mostrarMenu = false
-                        }
-                    )
+                            }
+                        )
+                    }
                 }
-            }
-        }
-
-        // Botón Guardar
-        Spacer(modifier = Modifier.weight(1f)) // Espaciador flexible
-        Button(
-            onClick = { /*TODO()*/ },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text("Guardar")
             }
         }
     }

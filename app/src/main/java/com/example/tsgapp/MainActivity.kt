@@ -44,6 +44,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tsgapp.ui.theme.TSGAppTheme
 import com.example.tsgapp.ui.theme.TamañoLetra
+import com.example.tsgapp.ui.theme.ThemeState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -187,15 +188,27 @@ fun BarraDespla(navController: NavController? = null){
         modifier = Modifier.fillMaxWidth().height(50.dp),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        Button(
+        if (!ThemeState.isDarkMode){
+            Button(
+                onClick = { navController?.navigate("favoritos")},
+                colors = ButtonDefaults.buttonColors(Color.Transparent)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.favorite),
+                    contentDescription = null
+                )
+            }
+        } else {
+            Button(
             onClick = { navController?.navigate("favoritos")},
             colors = ButtonDefaults.buttonColors(Color.Transparent)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.favorite),
+                painter = painterResource(id = R.drawable.favoritedark),
                 contentDescription = null
             )
-        }
+        }}
+
 
         Divider(
             modifier = Modifier
@@ -204,8 +217,8 @@ fun BarraDespla(navController: NavController? = null){
                 .padding(vertical = 5.dp),
             color = Color.Gray
         )
-
-        Button(
+        if (!ThemeState.isDarkMode) {
+            Button(
             onClick = { navController?.navigate("principal")},
             colors = ButtonDefaults.buttonColors(Color.Transparent)
         ) {
@@ -213,7 +226,18 @@ fun BarraDespla(navController: NavController? = null){
                 painter = painterResource(id = R.drawable.home),
                 contentDescription = null
             )
+        }} else {
+            Button(
+                onClick = { navController?.navigate("principal")},
+                colors = ButtonDefaults.buttonColors(Color.Transparent)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.homedark),
+                    contentDescription = null
+                )
+            }
         }
+
 
         Divider(
             modifier = Modifier
@@ -223,14 +247,26 @@ fun BarraDespla(navController: NavController? = null){
             color = Color.Gray
         )
 
-        Button(
-            onClick = { navController?.navigate("ajustes")},
-            colors = ButtonDefaults.buttonColors(Color.Transparent)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.settings),
-                contentDescription = null
-            )
+        if (!ThemeState.isDarkMode) {
+            Button(
+                onClick = { navController?.navigate("ajustes")},
+                colors = ButtonDefaults.buttonColors(Color.Transparent)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.settings),
+                    contentDescription = null
+                )
+            }
+        } else {
+            Button(
+                onClick = { navController?.navigate("ajustes")},
+                colors = ButtonDefaults.buttonColors(Color.Transparent)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.settingsdark),
+                    contentDescription = null
+                )
+            }
         }
     }
 }

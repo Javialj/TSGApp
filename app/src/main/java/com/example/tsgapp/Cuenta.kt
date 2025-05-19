@@ -21,7 +21,12 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +49,9 @@ class Cuenta : ComponentActivity() {
 
 @Composable
 fun VentanaCuenta() {
+    var text1 by rememberSaveable { mutableStateOf("") }
+    var text2 by rememberSaveable { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -52,9 +60,20 @@ fun VentanaCuenta() {
         verticalArrangement = Arrangement.Top
     ) {
         // Campos de entrada
-        InputField(label = "Usuario:")
+
+        TextField(
+            value = text1,
+            onValueChange = { text1 = it },
+            label = { Text("Label") },
+            singleLine = true
+        )
         Spacer(modifier = Modifier.height(16.dp))
-        InputField(label = "Contraseña:")
+        TextField(
+            value = text2,
+            onValueChange = { text1 = it },
+            label = { Text("Label") },
+            singleLine = true
+        )
 
         // Enlace de recuperación de contraseña
         Spacer(modifier = Modifier.height(15.dp))
@@ -75,7 +94,7 @@ fun VentanaCuenta() {
 
 // Componente reutilizable para campos de texto
 @Composable
-fun InputField(label: String) {
+fun IngresoDatos(label: String) {
     OutlinedTextField(
         value = "",
         onValueChange = {},
