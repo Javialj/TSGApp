@@ -83,7 +83,11 @@ fun Principal() {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
-            Row {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 SearchBar(
                     query = query,
                     onQueryChange = { query = it },
@@ -100,7 +104,8 @@ fun Principal() {
                     onActiveChange = {},
                     placeholder = { Text("Buscar...") },
                     trailingIcon = { /* Opcional: agrega un icono de limpiar búsqueda */ },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .weight(1f),
                     enabled = true,
                     shape = MaterialTheme.shapes.medium,
                     colors = SearchBarDefaults.colors(
@@ -112,6 +117,18 @@ fun Principal() {
                     interactionSource = remember { MutableInteractionSource() },
                     content = {}
                 )
+                if (!ThemeState.isDarkMode){
+                    Image(
+                        painter = painterResource(R.drawable.smartprice),
+                        contentDescription = null
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(R.drawable.smartpricedark),
+                        contentDescription = null
+                    )
+                }
+
             }
             Divider(modifier = Modifier.padding(top = 16.dp))
         }

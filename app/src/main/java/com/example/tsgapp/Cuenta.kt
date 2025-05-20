@@ -64,14 +64,14 @@ fun VentanaCuenta() {
         TextField(
             value = text1,
             onValueChange = { text1 = it },
-            label = { Text("Label") },
+            label = { Text("User") },
             singleLine = true
         )
         Spacer(modifier = Modifier.height(16.dp))
         TextField(
             value = text2,
-            onValueChange = { text1 = it },
-            label = { Text("Label") },
+            onValueChange = { text2 = it },
+            label = { Text("Password") },
             singleLine = true
         )
 
@@ -90,22 +90,6 @@ fun VentanaCuenta() {
         LoginButton(text = "X", iconRes = R.drawable.twitter)
         LoginButton(text = "Facebook", iconRes = R.drawable.facebook)
     }
-}
-
-// Componente reutilizable para campos de texto
-@Composable
-fun IngresoDatos(label: String) {
-    OutlinedTextField(
-        value = "",
-        onValueChange = {},
-        label = {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    )
 }
 
 // Componente para el enlace de recuperación de contraseña
