@@ -2,6 +2,7 @@ package com.example.tsgapp
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -99,7 +100,7 @@ fun Principal() {
                             isLoading = true
                             productosDIA = getProductosDIA(query)
                             productosAhorramas = getProductosAhorramas(query)
-                            productosCarrefour = getProductosCorteIngles(query)
+                            productosCarrefour = getProductosCarrefour(query)
                             isLoading = false
                         }
                     },
@@ -177,8 +178,23 @@ fun Principal() {
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-
+                                        val contexto = LocalContext.current
+                                        Row(
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
+                                            Button(
+                                                modifier = Modifier.size(80.dp),
+                                                onClick = { Toast.makeText(contexto, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show()},
+                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(R.drawable.alert),
+                                                    contentDescription = null
+                                                )
+                                            }
+                                        }
                                         MarcarFavo {  }
                                     }
                                     LazyRow(
@@ -293,6 +309,7 @@ fun Principal() {
     }
 }
 
+
 @Composable
 fun ProductosInicio(){
     var productosDIA by remember { mutableStateOf<List<Producto>>(emptyList()) }
@@ -301,7 +318,7 @@ fun ProductosInicio(){
 
     val listacomienzo = listOf("Mazana", "Galletas", "Carne", "Refresco")
     val productoAleatorio = listacomienzo.random()
-
+    val contexto = LocalContext.current
     LaunchedEffect(Unit) {
         productosDIA = getProductosDIA(productoAleatorio)
         productosAhorramas = getProductosAhorramas(productoAleatorio)
@@ -312,7 +329,22 @@ fun ProductosInicio(){
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
+                Button(
+                    modifier = Modifier.size(80.dp),
+                    onClick = { Toast.makeText(contexto, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show()},
+                    colors = ButtonDefaults.buttonColors(Color.Transparent)
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.alert),
+                        contentDescription = null
+                    )
+                }
+            }
             MarcarFavo {  }
         }
         LazyRow(

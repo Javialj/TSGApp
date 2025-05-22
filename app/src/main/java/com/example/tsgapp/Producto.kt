@@ -72,34 +72,38 @@ suspend fun getProductosAhorramas(query: String): List<Producto> {
     }
 }
 
-suspend fun getProductosCorteIngles(query: String): List<Producto> {
+suspend fun getProductosCarrefour(query: String): List<Producto> {
     val encodedQuery = URLEncoder.encode(query, "UTF-8").replace("+", "%20")
     return try {
-        val url = "https://www.elcorteingles.es/supermercado/buscar/?term=$encodedQuery"
+        val url = "https://www.carrefour.es/?query= $encodedQuery"
 
         val document = withContext(Dispatchers.IO) {
             Jsoup.connect(url)
-                .userAgent("Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36")
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36")
                 .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
                 .header("Accept-Language", "es-ES,es;q=0.9,en;q=0.8")
                 .header("Accept-Encoding", "gzip, deflate")
                 .header("Referer", "https://www.google.com/ ")
+                .header("Upgrade-Insecure-Requests", "1")
                 .header("Connection", "keep-alive")
                 .timeout(30_000)
+                .followRedirects(true)
                 .get()
         }
 
-        val items = document.select("div.grid-item.product_tile")
+        val items = document.select("li.x-base-grid__item")
 
         items.mapNotNull { element ->
-            val nombreElement = element.selectFirst("a.js-product-link")
-            val nombre = nombreElement?.attr("title") ?: nombreElement?.text().orEmpty()
+            val nombreElement = element.selectFirst("p.x-font-bold")
+            val nombre = nombreElement?.text().orEmpty()
 
-            val precioElement = element.selectFirst("div.prices-price._current")
-            val precio = precioElement?.text().orEmpty()
-                .replace(",", ".").filter { it.isDigit() || it == '.' }
+            val precioElement = element.selectFirst("div.x-result-current-price span.x-currency")
+            val precio = precioElement?.text()
+                ?.replace(",", ".")
+                ?.filter { it.isDigit() || it == '.' }
+                .orEmpty()
 
-            val imgElement = element.selectFirst("img.product_tile-image")
+            val imgElement = element.selectFirst("img.x-picture-image")
             val imageUrl = imgElement?.absUrl("src").orEmpty()
 
             val ofertaproducto = ""
@@ -113,9 +117,8 @@ suspend fun getProductosCorteIngles(query: String): List<Producto> {
             }
         }
     } catch (e: Exception) {
-        Log.e("JsoupError", "Error parsing HTML or fetching data from El Corte Inglés", e)
+        Log.e("JsoupError", "Error parsing HTML or fetching data from Carrefour", e)
         emptyList()
     }
 }
-
 //https://tienda.mercadona.es/search-results?query=
