@@ -1,5 +1,6 @@
 package com.example.tsgapp
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -35,6 +36,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,6 +70,7 @@ class VentanaPrincipal : ComponentActivity() {
     }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Principal() {
@@ -78,16 +81,16 @@ fun Principal() {
     var isLoading by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
-            ) {
+            )  {
                 SearchBar(
                     query = query,
                     onQueryChange = { query = it },
@@ -119,18 +122,24 @@ fun Principal() {
                 )
                 if (!ThemeState.isDarkMode){
                     Image(
+                        modifier = Modifier.size(80.dp).padding(top = 25.dp),
                         painter = painterResource(R.drawable.smartprice),
                         contentDescription = null
                     )
                 } else {
                     Image(
+                        modifier = Modifier.size(80.dp).padding(top = 25.dp),
                         painter = painterResource(R.drawable.smartpricedark),
                         contentDescription = null
                     )
                 }
 
             }
-            Divider(modifier = Modifier.padding(top = 16.dp))
+            if (!ThemeState.isDarkMode){
+                Divider(modifier = Modifier.padding(top = 16.dp), color = Color.Black)
+            } else {
+                Divider(modifier = Modifier.padding(top = 16.dp), color = Color.White)
+            }
         }
         Box(
             modifier = Modifier
@@ -145,6 +154,9 @@ fun Principal() {
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 item {
+                    if (productosDIA.isEmpty() && productosAhorramas.isEmpty()){
+                        ProductosInicio()
+                    }
                     if (isLoading) {
                         Box(
                             modifier = Modifier
@@ -156,7 +168,7 @@ fun Principal() {
                         }
                     } else {
                         if (productosDIA.isEmpty() && productosAhorramas.isEmpty()) {
-                            Text("No se encontraron productos.", fontSize = TamañoLetra.tamañoFuente.sp)
+                            Text("")
                         } else {
                             Column {
                                 if (productosDIA.isNotEmpty()) {
@@ -167,29 +179,7 @@ fun Principal() {
                                     ) {
                                         Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
 
-                                        if (!ThemeState.isDarkMode){
-                                            Button(
-                                                onClick = {/**/},
-                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.favoritep),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                            }
-                                        } else {
-                                            Button(
-                                                onClick = {/**/},
-                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.favoritepdark),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(17.dp)
-                                                )
-                                            }
-                                        }
+                                        MarcarFavo {  }
                                     }
                                     LazyRow(
                                         modifier = Modifier
@@ -210,16 +200,6 @@ fun Principal() {
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-                                            Button(
-                                                onClick = {/**/},
-                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.favoritep),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                            }
                                         }
                                         Spacer(modifier = Modifier.height(16.dp))
                                         Text("No se ha encontrado resultados en este supermercado")
@@ -234,29 +214,7 @@ fun Principal() {
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text("Productos Ahorramas", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-                                        if (!ThemeState.isDarkMode){
-                                            Button(
-                                                onClick = {/**/},
-                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.favoritep),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                            }
-                                        } else {
-                                            Button(
-                                                onClick = {/**/},
-                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.favoritepdark),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(17.dp)
-                                                )
-                                            }
-                                        }
+                                        MarcarFavo {  }
                                     }
                                     LazyRow(
                                         modifier = Modifier
@@ -282,29 +240,6 @@ fun Principal() {
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = TamañoLetra.tamañoFuente.sp
                                             )
-                                            if (!ThemeState.isDarkMode){
-                                                Button(
-                                                    onClick = {/**/},
-                                                    colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                                ) {
-                                                    Image(
-                                                        painter = painterResource(id = R.drawable.favoritep),
-                                                        contentDescription = null,
-                                                        modifier = Modifier.size(20.dp)
-                                                    )
-                                                }
-                                            } else {
-                                                Button(
-                                                    onClick = {/**/},
-                                                    colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                                ) {
-                                                    Image(
-                                                        painter = painterResource(id = R.drawable.favoritepdark),
-                                                        contentDescription = null,
-                                                        modifier = Modifier.size(20.dp)
-                                                    )
-                                                }
-                                            }
                                         }
                                         Spacer(modifier = Modifier.height(16.dp))
                                         Text("No se ha encontrado resultados en este supermercado")
@@ -318,29 +253,7 @@ fun Principal() {
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text("Productos Carrefour", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-                                        if (!ThemeState.isDarkMode){
-                                            Button(
-                                                onClick = {/**/},
-                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.favoritep),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                            }
-                                        } else {
-                                            Button(
-                                                onClick = {/**/},
-                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.favoritepdark),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                            }
-                                        }
+                                        MarcarFavo {  }
                                     }
                                     LazyRow(
                                         modifier = Modifier
@@ -366,16 +279,6 @@ fun Principal() {
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = TamañoLetra.tamañoFuente.sp
                                             )
-                                            Button(
-                                                onClick = {/**/ },
-                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.favoritep),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                            }
                                         }
                                         Spacer(modifier = Modifier.height(16.dp))
                                         Text("No se ha encontrado resultados en este supermercado", fontSize = TamañoLetra.tamañoFuente.sp)
@@ -390,7 +293,87 @@ fun Principal() {
     }
 }
 
+@Composable
+fun ProductosInicio(){
+    var productosDIA by remember { mutableStateOf<List<Producto>>(emptyList()) }
+    var productosAhorramas by remember { mutableStateOf<List<Producto>>(emptyList()) }
+    var productosCarrefour by remember { mutableStateOf<List<Producto>>(emptyList()) }
 
+    val listacomienzo = listOf("Mazana", "Galletas", "Carne", "Refresco")
+    val productoAleatorio = listacomienzo.random()
+
+    LaunchedEffect(Unit) {
+        productosDIA = getProductosDIA(productoAleatorio)
+        productosAhorramas = getProductosAhorramas(productoAleatorio)
+    }
+    Column {
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
+            MarcarFavo {  }
+        }
+        LazyRow(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
+            items(productosDIA.size) { index ->
+                ProductoItem(producto = productosDIA[index])
+            }
+        }
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Productos Ahorramas", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
+            MarcarFavo {  }
+        }
+        LazyRow(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
+            items(productosAhorramas.size) { index ->
+                ProductoItem(producto = productosAhorramas[index])
+            }
+        }
+    }
+}
+
+@Composable
+fun MarcarFavo(onClick: () -> Unit){
+    if (!ThemeState.isDarkMode){
+        Button(
+            onClick = {onClick},
+            colors = ButtonDefaults.buttonColors(Color.Transparent)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.favoritep),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    } else {
+        Button(
+            onClick = {onClick},
+            colors = ButtonDefaults.buttonColors(Color.Transparent)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.favoritepdark),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
 @Composable
 fun ProductoItem(producto: Producto) {
     var expandido by remember { mutableStateOf(false) }
@@ -445,8 +428,16 @@ fun ProductoItem(producto: Producto) {
             if (producto.ofertaproducto.isNotBlank()) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
+                    textAlign = TextAlign.Right,
                     text = producto.ofertaproducto,
                     fontSize = 14.sp
+                )
+            }
+            if (producto.ofertaespe.isNotBlank()){
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = producto.ofertaespe,
+                    fontSize = TamañoLetra.tamañoFuente.sp
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
