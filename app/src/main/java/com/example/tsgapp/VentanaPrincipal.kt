@@ -100,7 +100,7 @@ fun Principal() {
                             isLoading = true
                             productosDIA = getProductosDIA(query)
                             productosAhorramas = getProductosAhorramas(query)
-                            productosCarrefour = getProductosCarrefour(query)
+                            productosCarrefour = getProductosMercadona(query)
                             isLoading = false
                         }
                     },

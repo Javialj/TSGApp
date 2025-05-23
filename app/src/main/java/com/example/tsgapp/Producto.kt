@@ -3,6 +3,7 @@ package com.example.tsgapp
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jsoup.Connection
 import org.jsoup.Jsoup
 import java.net.URLEncoder
 
@@ -72,40 +73,43 @@ suspend fun getProductosAhorramas(query: String): List<Producto> {
     }
 }
 
-suspend fun getProductosCarrefour(query: String): List<Producto> {
+suspend fun getProductosMercadona(query: String): List<Producto> {
     val encodedQuery = URLEncoder.encode(query, "UTF-8").replace("+", "%20")
-    return try {
-        val url = "https://www.carrefour.es/?query= $encodedQuery"
 
+    return try {
+        // 1. Enviar código postal y obtener cookies
+        val postalCodeUrl = "https://tienda.mercadona.es/"
+        val postalCode = "28823"
+
+        val cookies = Jsoup.connect(postalCodeUrl)
+            .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36")
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .method(Connection.Method.POST)
+            .data("postalCode", postalCode)
+            .execute()
+            .cookies()
+
+        // 2. Realizar la búsqueda con las cookies
+        val url = "https://tienda.mercadona.es/search-results?query=$encodedQuery"
         val document = withContext(Dispatchers.IO) {
             Jsoup.connect(url)
-                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36")
-                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-                .header("Accept-Language", "es-ES,es;q=0.9,en;q=0.8")
-                .header("Accept-Encoding", "gzip, deflate")
-                .header("Referer", "https://www.google.com/ ")
-                .header("Upgrade-Insecure-Requests", "1")
-                .header("Connection", "keep-alive")
+                .data("postalCode", postalCode)
+                .userAgent("Mozilla/5.0...")
+                .headers(mapOf(
+                    "Accept" to "text/html,application/xhtml+xml...",
+                    "Accept-Language" to "es-ES,es;q=0.9,en;q=0.8",
+                    "Cookie" to cookies.entries.joinToString("; ") { "${it.key}=${it.value}" }
+                ))
                 .timeout(30_000)
-                .followRedirects(true)
                 .get()
         }
 
-        val items = document.select("li.x-base-grid__item")
-
+        // 3. Parsear resultados
+        val items = document.select("div.product-cell") // Usar la clase correcta
         items.mapNotNull { element ->
-            val nombreElement = element.selectFirst("p.x-font-bold")
-            val nombre = nombreElement?.text().orEmpty()
-
-            val precioElement = element.selectFirst("div.x-result-current-price span.x-currency")
-            val precio = precioElement?.text()
-                ?.replace(",", ".")
-                ?.filter { it.isDigit() || it == '.' }
-                .orEmpty()
-
-            val imgElement = element.selectFirst("img.x-picture-image")
-            val imageUrl = imgElement?.absUrl("src").orEmpty()
-
+            val nombre = element.selectFirst("h4.subhead1-r.product-cell__description-name")?.text().orEmpty()
+            val precio = element.selectFirst("p.product-price__unit-price")?.text().orEmpty()
+            val imageUrl = element.selectFirst("img")?.absUrl("src").orEmpty()
             val ofertaproducto = ""
             val ofertaprecio = ""
             val ofertaespe = ""
@@ -117,8 +121,7 @@ suspend fun getProductosCarrefour(query: String): List<Producto> {
             }
         }
     } catch (e: Exception) {
-        Log.e("JsoupError", "Error parsing HTML or fetching data from Carrefour", e)
+        Log.e("JsoupError", "Error fetching data", e)
         emptyList()
     }
-}
-//https://tienda.mercadona.es/search-results?query=
+}//https://tienda.mercadona.es/search-results?query=
