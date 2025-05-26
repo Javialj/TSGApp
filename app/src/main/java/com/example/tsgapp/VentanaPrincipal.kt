@@ -56,6 +56,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.tsgapp.ui.theme.TamañoLetra
@@ -71,18 +73,17 @@ class VentanaPrincipal : ComponentActivity() {
     }
 }
 
+
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Principal() {
-    var query by remember { mutableStateOf("") }
-    var productosDIA by remember { mutableStateOf<List<Producto>>(emptyList()) }
-    var productosAhorramas by remember { mutableStateOf<List<Producto>>(emptyList()) }
-    var productosCarrefour by remember { mutableStateOf<List<Producto>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(false) }
+fun Principal(): String {
+    val viewModel: ProductsViewModel = viewModel()
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Column(modifier = Modifier.fillMaxSize()) {
+        // Barra de búsqueda vinculada al ViewModel
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -91,23 +92,18 @@ fun Principal() {
                 modifier = Modifier
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
-            )  {
+            ) {
                 SearchBar(
-                    query = query,
-                    onQueryChange = { query = it },
+                    query = viewModel.query,
+                    onQueryChange = { viewModel.updateQuery(it) },
                     onSearch = {
                         coroutineScope.launch {
-                            isLoading = true
-                            productosDIA = getProductosDIA(query)
-                            productosAhorramas = getProductosAhorramas(query)
-                            productosCarrefour = getProductosMercadona(query)
-                            isLoading = false
+                            viewModel.searchProducts()
                         }
                     },
                     active = false,
                     onActiveChange = {},
                     placeholder = { Text("Buscar...") },
-                    trailingIcon = { /* Opcional: agrega un icono de limpiar búsqueda */ },
                     modifier = Modifier
                         .weight(1f),
                     enabled = true,
@@ -115,13 +111,10 @@ fun Principal() {
                     colors = SearchBarDefaults.colors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer
                     ),
-                    tonalElevation = 0.dp,
-                    shadowElevation = 0.dp,
-                    windowInsets = SearchBarDefaults.windowInsets,
-                    interactionSource = remember { MutableInteractionSource() },
                     content = {}
                 )
-                if (!ThemeState.isDarkMode){
+                // Logo de la app
+                if (!ThemeState.isDarkMode) {
                     Image(
                         modifier = Modifier.size(80.dp).padding(top = 25.dp),
                         painter = painterResource(R.drawable.smartprice),
@@ -134,19 +127,21 @@ fun Principal() {
                         contentDescription = null
                     )
                 }
-
             }
-            if (!ThemeState.isDarkMode){
+            // Divisor según tema
+            if (!ThemeState.isDarkMode) {
                 Divider(modifier = Modifier.padding(top = 16.dp), color = Color.Black)
             } else {
                 Divider(modifier = Modifier.padding(top = 16.dp), color = Color.White)
             }
         }
+
+        // Contenido principal
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxSize()
-        ){
+        ) {
             LazyColumn(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -155,10 +150,8 @@ fun Principal() {
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 item {
-                    if (productosDIA.isEmpty() && productosAhorramas.isEmpty()){
-                        ProductosInicio()
-                    }
-                    if (isLoading) {
+                    // Estado de carga
+                    if (viewModel.isLoading) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -167,138 +160,65 @@ fun Principal() {
                         ) {
                             CircularProgressIndicator()
                         }
-                    } else {
-                        if (productosDIA.isEmpty() && productosAhorramas.isEmpty()) {
-                            Text("")
+                    }
+                    // Mensaje de error
+                    else if (viewModel.errorMessage != null) {
+                        Text(
+                            text = "Error: ${viewModel.errorMessage}",
+                            color = Color.Red,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                    // Sin resultados
+                    else if (viewModel.query.isNotEmpty() &&
+                        viewModel.productosDIA.isEmpty() &&
+                        viewModel.productosAhorramas.isEmpty() &&
+                        viewModel.productosCarrefour.isEmpty()) {
+                        Text(
+                            text = "No se encontraron productos para \"${viewModel.query}\"",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
+                        )
+                    }
+                    // Mostrar resultados o productos iniciales
+                    else {
+                        if (viewModel.query.isEmpty() &&
+                            viewModel.productosDIA.isEmpty() &&
+                            viewModel.productosAhorramas.isEmpty()) {
+                            ProductosInicio(viewModel)
                         } else {
                             Column {
-                                if (productosDIA.isNotEmpty()) {
-                                    Row (
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        val contexto = LocalContext.current
-                                        Row(
-                                            horizontalArrangement = Arrangement.Center,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-                                            Button(
-                                                modifier = Modifier.size(80.dp),
-                                                onClick = { Toast.makeText(contexto, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show()},
-                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(R.drawable.alert),
-                                                    contentDescription = null
-                                                )
-                                            }
-                                        }
-                                        MarcarFavo {  }
+                                // Sección DIA
+                                if (viewModel.productosDIA.isNotEmpty()) {
+                                    HeaderSupermercado("Productos DIA") {
+                                        MarcarFavo {}
                                     }
-                                    LazyRow(
-                                        modifier = Modifier
-                                            .padding(top = 8.dp)
-                                            .fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                        contentPadding = PaddingValues(horizontal = 16.dp)
-                                    ) {
-                                        items(productosDIA.size) { index ->
-                                            ProductoItem(producto = productosDIA[index])
-                                        }
-                                    }
+                                    ListaProductos(viewModel.productosDIA)
                                 } else {
-                                    Column {
-                                        Row (
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-                                        }
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        Text("No se ha encontrado resultados en este supermercado")
-                                    }
+                                    MensajeSinResultados("Productos DIA")
                                 }
-                                Spacer(modifier = Modifier.height(16.dp))
-                                if (productosAhorramas.isNotEmpty()) {
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Row (
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text("Productos Ahorramas", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-                                        MarcarFavo {  }
+
+                                // Sección Ahorramas
+                                if (viewModel.productosAhorramas.isNotEmpty()) {
+                                    HeaderSupermercado("Productos Ahorramas") {
+                                        MarcarFavo {}
                                     }
-                                    LazyRow(
-                                        modifier = Modifier
-                                            .padding(top = 8.dp)
-                                            .fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                        contentPadding = PaddingValues(horizontal = 16.dp)
-                                    ) {
-                                        items(productosAhorramas.size) { index ->
-                                            ProductoItem(producto = productosAhorramas[index])
-                                        }
-                                    }
+                                    ListaProductos(viewModel.productosAhorramas)
                                 } else {
-                                    Column {
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                "Productos Ahorrmas",
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = TamañoLetra.tamañoFuente.sp
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        Text("No se ha encontrado resultados en este supermercado")
-                                    }
+                                    MensajeSinResultados("Productos Ahorrmas")
                                 }
-                                if (productosCarrefour.isNotEmpty()) {
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Row (
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text("Productos Carrefour", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-                                        MarcarFavo {  }
+
+                                // Sección Carrefour
+                                if (viewModel.productosCarrefour.isNotEmpty()) {
+                                    HeaderSupermercado("Productos Carrefour") {
+                                        MarcarFavo {}
                                     }
-                                    LazyRow(
-                                        modifier = Modifier
-                                            .padding(top = 8.dp)
-                                            .fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                        contentPadding = PaddingValues(horizontal = 16.dp)
-                                    ) {
-                                        items(productosCarrefour.size) { index ->
-                                            ProductoItem(producto = productosCarrefour[index])
-                                        }
-                                    }
+                                    ListaProductos(viewModel.productosCarrefour)
                                 } else {
-                                    Column {
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                "Productos Carrefour",
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = TamañoLetra.tamañoFuente.sp
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        Text("No se ha encontrado resultados en este supermercado", fontSize = TamañoLetra.tamañoFuente.sp)
-                                    }
+                                    MensajeSinResultados("Productos Carrefour")
                                 }
                             }
                         }
@@ -307,11 +227,91 @@ fun Principal() {
             }
         }
     }
+
+    // Cargar productos iniciales
+    LaunchedEffect(Unit) {
+        viewModel.loadInitialProducts()
+    }
+
+    return viewModel.query
 }
 
+// Componentes auxiliares para mejorar la legibilidad
 
 @Composable
-fun ProductosInicio(){
+fun HeaderSupermercado(
+    titulo: String,
+    trailingContent: @Composable () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = titulo,
+                fontWeight = FontWeight.Bold,
+                fontSize = TamañoLetra.tamañoFuente.sp
+            )
+            Button(
+                modifier = Modifier.size(80.dp),
+                onClick = { /* Acción del botón */ },
+                colors = ButtonDefaults.buttonColors(Color.Transparent)
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.alert),
+                    contentDescription = null
+                )
+            }
+        }
+        trailingContent()
+    }
+}
+
+@Composable
+fun ListaProductos(productos: List<Producto>) {
+    LazyRow(
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+        items(productos.size) { index ->
+            ProductoItem(producto = productos[index])
+        }
+    }
+}
+
+@Composable
+fun MensajeSinResultados(nombreSupermercado: String) {
+    Column {
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = nombreSupermercado,
+                fontWeight = FontWeight.Bold,
+                fontSize = TamañoLetra.tamañoFuente.sp
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            "No se ha encontrado resultados en este supermercado",
+            fontSize = TamañoLetra.tamañoFuente.sp
+        )
+    }
+}
+
+@Composable
+fun ProductosInicio(viewModel: ProductsViewModel){
     var productosDIA by remember { mutableStateOf<List<Producto>>(emptyList()) }
     var productosAhorramas by remember { mutableStateOf<List<Producto>>(emptyList()) }
     var productosCarrefour by remember { mutableStateOf<List<Producto>>(emptyList()) }
