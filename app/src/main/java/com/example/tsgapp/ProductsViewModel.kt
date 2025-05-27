@@ -20,10 +20,10 @@ class ProductsViewModel : ViewModel() {
     }
 
     fun searchProducts() {
-        isLoading = true
         errorMessage = null
 
         viewModelScope.launch {
+            isLoading = true
             try {
                 productosDIA = getProductosDIA(query)
                 productosAhorramas = getProductosAhorramas(query)
@@ -33,15 +33,6 @@ class ProductsViewModel : ViewModel() {
             } finally {
                 isLoading = false
             }
-        }
-    }
-
-    fun loadInitialProducts() {
-        val listacomienzo = listOf("Mazana", "Galletas", "Carne", "Refresco")
-        val productoAleatorio = listacomienzo.random()
-        viewModelScope.launch {
-            productosDIA = getProductosDIA(productoAleatorio)
-            productosAhorramas = getProductosAhorramas(productoAleatorio)
         }
     }
 }

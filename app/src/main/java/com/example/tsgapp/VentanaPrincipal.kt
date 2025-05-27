@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,7 +55,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -170,30 +168,23 @@ fun Principal(): String {
                             modifier = Modifier.padding(16.dp)
                         )
                     }
-                    // Sin resultados
-                    else if (viewModel.query.isNotEmpty() &&
-                        viewModel.productosDIA.isEmpty() &&
-                        viewModel.productosAhorramas.isEmpty() &&
-                        viewModel.productosCarrefour.isEmpty()) {
-                        Text(
-                            text = "No se encontraron productos para \"${viewModel.query}\"",
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth()
-                        )
-                    }
                     // Mostrar resultados o productos iniciales
                     else {
-                        if (viewModel.query.isEmpty() &&
-                            viewModel.productosDIA.isEmpty() &&
-                            viewModel.productosAhorramas.isEmpty()) {
-                            ProductosInicio(viewModel)
-                        } else {
+                        if (viewModel.productosDIA.isNotEmpty() && viewModel.productosAhorramas.isNotEmpty()) {
                             Column {
                                 // Sección DIA
                                 if (viewModel.productosDIA.isNotEmpty()) {
                                     HeaderSupermercado("Productos DIA") {
+                                        Button(
+                                            modifier = Modifier.size(80.dp),
+                                            onClick = { Toast.makeText(context, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show() },
+                                            colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                        ) {
+                                            Image(
+                                                painter = painterResource(R.drawable.alert),
+                                                contentDescription = null
+                                            )
+                                        }
                                         MarcarFavo {}
                                     }
                                     ListaProductos(viewModel.productosDIA)
@@ -221,22 +212,16 @@ fun Principal(): String {
                                     MensajeSinResultados("Productos Carrefour")
                                 }
                             }
+                        } else {
+                            ProductosInicio()
                         }
                     }
                 }
             }
         }
     }
-
-    // Cargar productos iniciales
-    LaunchedEffect(Unit) {
-        viewModel.loadInitialProducts()
-    }
-
     return viewModel.query
 }
-
-// Componentes auxiliares para mejorar la legibilidad
 
 @Composable
 fun HeaderSupermercado(
@@ -257,16 +242,6 @@ fun HeaderSupermercado(
                 fontWeight = FontWeight.Bold,
                 fontSize = TamañoLetra.tamañoFuente.sp
             )
-            Button(
-                modifier = Modifier.size(80.dp),
-                onClick = { /* Acción del botón */ },
-                colors = ButtonDefaults.buttonColors(Color.Transparent)
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.alert),
-                    contentDescription = null
-                )
-            }
         }
         trailingContent()
     }
@@ -311,12 +286,12 @@ fun MensajeSinResultados(nombreSupermercado: String) {
 }
 
 @Composable
-fun ProductosInicio(viewModel: ProductsViewModel){
+fun ProductosInicio(){
     var productosDIA by remember { mutableStateOf<List<Producto>>(emptyList()) }
     var productosAhorramas by remember { mutableStateOf<List<Producto>>(emptyList()) }
     var productosCarrefour by remember { mutableStateOf<List<Producto>>(emptyList()) }
 
-    val listacomienzo = listOf("Mazana", "Galletas", "Carne", "Refresco")
+    val listacomienzo = listOf("Mazana", "Bolsa", "Yogurt", "Galletas", "Carne", "Refresco")
     val productoAleatorio = listacomienzo.random()
     val contexto = LocalContext.current
     LaunchedEffect(Unit) {
@@ -336,7 +311,7 @@ fun ProductosInicio(viewModel: ProductsViewModel){
                 Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
                 Button(
                     modifier = Modifier.size(80.dp),
-                    onClick = { Toast.makeText(contexto, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show()},
+                    onClick = { Toast.makeText(contexto, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show() },
                     colors = ButtonDefaults.buttonColors(Color.Transparent)
                 ) {
                     Image(
