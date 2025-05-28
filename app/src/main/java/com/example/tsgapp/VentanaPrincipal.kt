@@ -55,9 +55,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.tsgapp.ui.theme.FavoritesRepository
 import com.example.tsgapp.ui.theme.TamañoLetra
 import com.example.tsgapp.ui.theme.ThemeState
 import kotlinx.coroutines.launch
@@ -76,12 +78,13 @@ class VentanaPrincipal : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Principal(): String {
-    val viewModel: ProductsViewModel = viewModel()
+    val viewModel: ProductsViewModel = viewModel(
+        viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner
+    )
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Barra de búsqueda vinculada al ViewModel
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -111,7 +114,7 @@ fun Principal(): String {
                     ),
                     content = {}
                 )
-                // Logo de la app
+
                 if (!ThemeState.isDarkMode) {
                     Image(
                         modifier = Modifier.size(80.dp).padding(top = 25.dp),
@@ -126,7 +129,7 @@ fun Principal(): String {
                     )
                 }
             }
-            // Divisor según tema
+
             if (!ThemeState.isDarkMode) {
                 Divider(modifier = Modifier.padding(top = 16.dp), color = Color.Black)
             } else {
@@ -134,7 +137,7 @@ fun Principal(): String {
             }
         }
 
-        // Contenido principal
+
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -159,7 +162,7 @@ fun Principal(): String {
                             CircularProgressIndicator()
                         }
                     }
-                    // Mensaje de error
+
                     else if (viewModel.errorMessage != null) {
                         Text(
                             text = "Error: ${viewModel.errorMessage}",
@@ -168,44 +171,53 @@ fun Principal(): String {
                             modifier = Modifier.padding(16.dp)
                         )
                     }
-                    // Mostrar resultados o productos iniciales
+
                     else {
-                        if (viewModel.productosDIA.isNotEmpty() && viewModel.productosAhorramas.isNotEmpty()) {
+                        if (viewModel.productosDIA.isNotEmpty() || viewModel.productosAhorramas.isNotEmpty()) {
                             Column {
                                 // Sección DIA
                                 if (viewModel.productosDIA.isNotEmpty()) {
                                     HeaderSupermercado("Productos DIA") {
-                                        Button(
-                                            modifier = Modifier.size(80.dp),
-                                            onClick = { Toast.makeText(context, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show() },
-                                            colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                        ) {
-                                            Image(
-                                                painter = painterResource(R.drawable.alert),
-                                                contentDescription = null
-                                            )
+                                        if (!ThemeState.isDarkMode){
+                                            Button(
+                                                modifier = Modifier.size(80.dp),
+                                                onClick = { Toast.makeText(context, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show() },
+                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(R.drawable.alert),
+                                                    contentDescription = null
+                                                )
+                                            }
+                                        } else {
+                                            Button(
+                                                modifier = Modifier.size(80.dp),
+                                                onClick = { Toast.makeText(context, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show() },
+                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(R.drawable.alertdark),
+                                                    contentDescription = null
+                                                )
+                                            }
                                         }
-                                        MarcarFavo {}
                                     }
                                     ListaProductos(viewModel.productosDIA)
                                 } else {
                                     MensajeSinResultados("Productos DIA")
                                 }
 
-                                // Sección Ahorramas
                                 if (viewModel.productosAhorramas.isNotEmpty()) {
                                     HeaderSupermercado("Productos Ahorramas") {
-                                        MarcarFavo {}
                                     }
                                     ListaProductos(viewModel.productosAhorramas)
                                 } else {
                                     MensajeSinResultados("Productos Ahorrmas")
                                 }
 
-                                // Sección Carrefour
                                 if (viewModel.productosCarrefour.isNotEmpty()) {
                                     HeaderSupermercado("Productos Carrefour") {
-                                        MarcarFavo {}
+
                                     }
                                     ListaProductos(viewModel.productosCarrefour)
                                 } else {
@@ -309,18 +321,30 @@ fun ProductosInicio(){
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-                Button(
-                    modifier = Modifier.size(80.dp),
-                    onClick = { Toast.makeText(contexto, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show() },
-                    colors = ButtonDefaults.buttonColors(Color.Transparent)
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.alert),
-                        contentDescription = null
-                    )
+                if (!ThemeState.isDarkMode){
+                    Button(
+                        modifier = Modifier.size(80.dp),
+                        onClick = { Toast.makeText(contexto, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show() },
+                        colors = ButtonDefaults.buttonColors(Color.Transparent)
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.alert),
+                            contentDescription = null
+                        )
+                    }
+                } else {
+                    Button(
+                        modifier = Modifier.size(80.dp),
+                        onClick = { Toast.makeText(contexto, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show() },
+                        colors = ButtonDefaults.buttonColors(Color.Transparent)
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.alertdark),
+                            contentDescription = null
+                        )
+                    }
                 }
             }
-            MarcarFavo {  }
         }
         LazyRow(
             modifier = Modifier
@@ -339,7 +363,6 @@ fun ProductosInicio(){
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Productos Ahorramas", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-            MarcarFavo {  }
         }
         LazyRow(
             modifier = Modifier
@@ -356,31 +379,38 @@ fun ProductosInicio(){
 }
 
 @Composable
-fun MarcarFavo(onClick: () -> Unit){
+fun MarcarFavo(producto: Producto, onClick: (Producto) -> Unit) {
+    val isFavorite = FavoritesRepository.favorites.contains(producto)
+
     if (!ThemeState.isDarkMode){
         Button(
-            onClick = {onClick},
+            onClick = { onClick(producto) },
             colors = ButtonDefaults.buttonColors(Color.Transparent)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.favoritep),
-                contentDescription = null,
+                painter = painterResource(
+                    id = if (isFavorite) R.drawable.favoritepselect else R.drawable.favoritep
+                ),
+                contentDescription = "Favorito",
                 modifier = Modifier.size(20.dp)
             )
         }
     } else {
         Button(
-            onClick = {onClick},
+            onClick = { onClick(producto) },
             colors = ButtonDefaults.buttonColors(Color.Transparent)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.favoritepdark),
-                contentDescription = null,
+                painter = painterResource(
+                    id = if (isFavorite) R.drawable.favoritepdarkselect else R.drawable.favoritepdark
+                ),
+                contentDescription = "Favorito",
                 modifier = Modifier.size(20.dp)
             )
         }
     }
 }
+
 @Composable
 fun ProductoItem(producto: Producto) {
     var expandido by remember { mutableStateOf(false) }
@@ -453,6 +483,9 @@ fun ProductoItem(producto: Producto) {
                 fontWeight = FontWeight.Bold,
                 fontSize = TamañoLetra.tamañoFuente.sp
             )
+            MarcarFavo(producto) { fav ->
+                FavoritesRepository.toggleFavorite(fav)
+            }
         }
     }
 }
