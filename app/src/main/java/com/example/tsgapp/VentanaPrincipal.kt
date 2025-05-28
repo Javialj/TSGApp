@@ -1,6 +1,7 @@
 package com.example.tsgapp
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -59,7 +60,6 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.tsgapp.ui.theme.FavoritesRepository
 import com.example.tsgapp.ui.theme.TamañoLetra
 import com.example.tsgapp.ui.theme.ThemeState
 import kotlinx.coroutines.launch
@@ -261,6 +261,7 @@ fun HeaderSupermercado(
 
 @Composable
 fun ListaProductos(productos: List<Producto>) {
+    val context = LocalContext.current
     LazyRow(
         modifier = Modifier
             .padding(top = 8.dp)
@@ -269,7 +270,7 @@ fun ListaProductos(productos: List<Producto>) {
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         items(productos.size) { index ->
-            ProductoItem(producto = productos[index])
+            ProductoItem(producto = productos[index], context = context)
         }
     }
 }
@@ -354,7 +355,7 @@ fun ProductosInicio(){
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
             items(productosDIA.size) { index ->
-                ProductoItem(producto = productosDIA[index])
+                ProductoItem(producto = productosDIA[index], context = contexto)
             }
         }
         Row (
@@ -372,7 +373,7 @@ fun ProductosInicio(){
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
             items(productosAhorramas.size) { index ->
-                ProductoItem(producto = productosAhorramas[index])
+                ProductoItem(producto = productosAhorramas[index], context = contexto)
             }
         }
     }
@@ -380,11 +381,17 @@ fun ProductosInicio(){
 
 @Composable
 fun MarcarFavo(producto: Producto, onClick: (Producto) -> Unit) {
-    val isFavorite = FavoritesRepository.favorites.contains(producto)
+    val context = LocalContext.current
+    var isFavorite by remember {
+        mutableStateOf(FavoritesRepository.loadFavorites(context).contains(producto))
+    }
 
     if (!ThemeState.isDarkMode){
         Button(
-            onClick = { onClick(producto) },
+            onClick = {
+                onClick(producto)
+                isFavorite = !isFavorite
+            },
             colors = ButtonDefaults.buttonColors(Color.Transparent)
         ) {
             Image(
@@ -397,7 +404,10 @@ fun MarcarFavo(producto: Producto, onClick: (Producto) -> Unit) {
         }
     } else {
         Button(
-            onClick = { onClick(producto) },
+            onClick = {
+                onClick(producto)
+                isFavorite = !isFavorite
+            },
             colors = ButtonDefaults.buttonColors(Color.Transparent)
         ) {
             Image(
@@ -412,7 +422,7 @@ fun MarcarFavo(producto: Producto, onClick: (Producto) -> Unit) {
 }
 
 @Composable
-fun ProductoItem(producto: Producto) {
+fun ProductoItem(producto: Producto, context: Context) {
     var expandido by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
@@ -484,7 +494,7 @@ fun ProductoItem(producto: Producto) {
                 fontSize = TamañoLetra.tamañoFuente.sp
             )
             MarcarFavo(producto) { fav ->
-                FavoritesRepository.toggleFavorite(fav)
+                FavoritesRepository.toggleFavorite(context, fav)
             }
         }
     }
