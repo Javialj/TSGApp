@@ -7,7 +7,7 @@ import org.jsoup.Connection
 import org.jsoup.Jsoup
 import java.net.URLEncoder
 
-data class Producto(val nombre: String, val precio: String, val imagenUrl: String, val ofertaproducto: String, val ofertaprecio: String, val ofertaespe: String)
+data class Producto(val nombre: String, val precio: String, val imagenUrl: String, val ofertaproducto: String, val ofertaprecio: String, val ofertaespe: String, val supermercado: String)
 suspend fun getProductosDIA(query: String): List<Producto> {
     //<p data-test-id="search-product-card-dia-club" class="search-product-card__dia-club">Oferta exclusiva CLUB Dia</p>
     val encodedQuery = URLEncoder.encode(query, "UTF-8").replace("+", "%20")
@@ -28,8 +28,9 @@ suspend fun getProductosDIA(query: String): List<Producto> {
             val ofertaprecio = element.selectFirst(".product-special-offer__strikethrough-price")?.text().orEmpty()
             val descuento = element.selectFirst(".product-special-offer__discount")?.text().orEmpty()
             val ofertaespe = element.selectFirst(".search-product-card__dia-club")?.text().orEmpty()
+            val supermercado = "DIA"
             if (nombre.isNotBlank() && imageUrl.isNotBlank()) {
-                Producto(nombre, precio, imageUrl, descuento, ofertaprecio, ofertaespe)
+                Producto(nombre, precio, imageUrl, descuento, ofertaprecio, ofertaespe, supermercado)
             } else {
                 null
             }
@@ -61,8 +62,9 @@ suspend fun getProductosAhorramas(query: String): List<Producto> {
             val ofertaproducto = element.selectFirst(".tile-promotions")?.text().orEmpty()
             val ofertaprecio = element.selectFirst(".unit-price-per-unit")?.text().orEmpty()
             val ofertaespe = ""
+            val supermercado = "Ahorramas"
             if (nombre.isNotBlank() && imageUrl.isNotBlank()) {
-                Producto(nombre, precio, imageUrl, ofertaproducto, ofertaprecio, ofertaespe)
+                Producto(nombre, precio, imageUrl, ofertaproducto, ofertaprecio, ofertaespe, supermercado)
             } else {
                 null
             }
@@ -113,9 +115,9 @@ suspend fun getProductosMercadona(query: String): List<Producto> {
             val ofertaproducto = ""
             val ofertaprecio = ""
             val ofertaespe = ""
-
+            val supermercado = "Carrefour"
             if (nombre.isNotBlank() && imageUrl.isNotBlank()) {
-                Producto(nombre, precio, imageUrl, ofertaproducto, ofertaprecio, ofertaespe)
+                Producto(nombre, precio, imageUrl, ofertaproducto, ofertaprecio, ofertaespe, supermercado)
             } else {
                 null
             }

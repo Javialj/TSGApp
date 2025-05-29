@@ -1,5 +1,6 @@
 package com.example.tsgapp
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -46,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,6 +68,7 @@ class Personalizacion : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AjustesPersonalizados() {
+    val contexto = LocalContext.current
     var mostrarMenu by remember { mutableStateOf(false) }
     var idiomaSeleccionado by remember { mutableStateOf("Español") }
     val primaryColor = MaterialTheme.colorScheme.primary
@@ -102,7 +105,7 @@ fun AjustesPersonalizados() {
             Text("Tema de la aplicación:", fontSize = TamañoLetra.tamañoFuente.sp)
             Switch(
                 checked = ThemeState.isDarkMode,
-                onCheckedChange = { ThemeState.toggleTheme() },
+                onCheckedChange = { ThemeState.toggleTheme(contexto) },
                 thumbContent = if (ThemeState.isDarkMode) {
                     {
                         Image(

@@ -10,7 +10,6 @@ object FavoritesRepository {
     private const val KEY_FAVORITES = "favorites_list"
     private val gson = Gson()
 
-    // Guardar lista de favoritos
     fun saveFavorites(context: Context, favorites: List<Producto>) {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val json = gson.toJson(favorites)
@@ -19,7 +18,6 @@ object FavoritesRepository {
         }
     }
 
-    // Cargar lista de favoritos
     fun loadFavorites(context: Context): List<Producto> {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val json = sharedPreferences.getString(KEY_FAVORITES, null)
@@ -34,7 +32,6 @@ object FavoritesRepository {
         }
     }
 
-    // Añadir o quitar un producto de favoritos
     fun toggleFavorite(context: Context, producto: Producto) {
         val currentFavorites = loadFavorites(context).toMutableList()
         if (currentFavorites.contains(producto)) {

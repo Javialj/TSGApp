@@ -49,6 +49,7 @@ import com.example.tsgapp.ui.theme.ThemeState
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ThemeState.loadTheme(this)
         setContent {
             TSGAppTheme {
                 Surface {
