@@ -1,10 +1,8 @@
 package com.example.tsgapp
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -105,7 +103,7 @@ fun AjustesPersonalizados() {
             Text("Tema de la aplicación:", fontSize = TamañoLetra.tamañoFuente.sp)
             Switch(
                 checked = ThemeState.isDarkMode,
-                onCheckedChange = { ThemeState.toggleTheme(contexto) },
+                onCheckedChange = { ThemeState.saveTheme(contexto) },
                 thumbContent = if (ThemeState.isDarkMode) {
                     {
                         Image(
@@ -136,6 +134,7 @@ fun AjustesPersonalizados() {
             value = TamañoLetra.tamañoFuente.toFloat(),
             onValueChange = { newValue ->
                 TamañoLetra.tamañoFuente = newValue.toInt()
+                TamañoLetra.saveFontSize(contexto)
             },
             valueRange = 20f..30f,
             steps = 4,

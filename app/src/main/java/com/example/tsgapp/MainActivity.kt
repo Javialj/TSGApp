@@ -50,6 +50,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ThemeState.loadTheme(this)
+        TamañoLetra.loadFont(this)
         setContent {
             TSGAppTheme {
                 Surface {

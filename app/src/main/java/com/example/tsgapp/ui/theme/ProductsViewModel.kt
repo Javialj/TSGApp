@@ -1,10 +1,14 @@
-package com.example.tsgapp
+package com.example.tsgapp.ui.theme
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tsgapp.Producto
+import com.example.tsgapp.getProductosAhorramas
+import com.example.tsgapp.getProductosDIA
+import com.example.tsgapp.getProductosMercadona
 import kotlinx.coroutines.launch
 
 class ProductsViewModel : ViewModel() {

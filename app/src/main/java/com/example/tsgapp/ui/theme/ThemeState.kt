@@ -10,9 +10,9 @@ object ThemeState {
     var isDarkMode by mutableStateOf(false)
         private set
 
-    fun toggleTheme(context: Context) {
+    fun saveTheme(context: Context) {
         isDarkMode = !isDarkMode
-        // Guardar el estado en SharedPreferences
+
         val sharedPreferences = context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
         sharedPreferences.edit {
             putBoolean("is_dark_mode", isDarkMode)
