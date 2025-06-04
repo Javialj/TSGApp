@@ -500,9 +500,3 @@ fun ProductoItem(producto: Producto, context: Context) {
         }
     }
 }
-
-@Preview
-@Composable
-fun PrincipalPreview(){
-    Principal()
-}

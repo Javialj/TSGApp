@@ -120,9 +120,3 @@ fun MostrarProductoFavorito(producto: Producto, context: Context) {
         }
     }
 }
-
-@Preview
-@Composable
-fun PreviewFavoritos(){
-    Favoritos()
-}

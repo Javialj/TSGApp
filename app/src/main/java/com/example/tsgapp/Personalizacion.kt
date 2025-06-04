@@ -236,10 +236,3 @@ fun AjustesPersonalizados() {
         }
     }
 }
-
-
-@Preview
-@Composable
-fun PreviewAjustesP(){
-    AjustesPersonalizados()
-}

@@ -166,8 +166,3 @@ fun LoginButton(text: String, iconRes: Int) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun VentanaUsuariosPreview() {
-    VentanaCuenta()
-}
