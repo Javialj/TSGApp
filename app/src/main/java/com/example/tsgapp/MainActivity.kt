@@ -27,8 +27,13 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,10 +42,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.tsgapp.ui.theme.ProductsViewModel
 import com.example.tsgapp.ui.theme.TSGAppTheme
 import com.example.tsgapp.ui.theme.TamañoLetra
 import com.example.tsgapp.ui.theme.ThemeState
@@ -72,8 +79,8 @@ fun AppNavigation() {
             startDestination = "welcome",
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable("welcome") { Principal() }
-            composable("principal") { Principal() }
+            composable("welcome") { principal() }
+            composable("principal") { principal() }
             composable("favoritos") { Favoritos() }
             composable("ajustes") { Ajustes(navController) }
             composable("personalizacion") { AjustesPersonalizados() }
@@ -85,6 +92,7 @@ fun AppNavigation() {
 
 @Composable
 fun Ajustes(navController: NavController) {
+    val viewModel: ProductsViewModel = viewModel()
     Box(
         modifier = Modifier.fillMaxSize()
     ){
@@ -102,16 +110,30 @@ fun Ajustes(navController: NavController) {
 
             Spacer(modifier = Modifier.padding(20.dp))
 
-            Tiendas()
+            Tiendas(
+                onSelectionChange = { selected ->
+                    viewModel.updateSelectedSupermarkets(selected) // Actualiza el ViewModel
+                }
+            )
         }
     }
 }
 
 
 @Composable
-fun Tiendas() {
+fun Tiendas( onSelectionChange: (List<String>) -> Unit) {
+    val viewModel: ProductsViewModel = viewModel() // Obtiene el ViewModel compartido
+    val selectedSupermarkets by viewModel.selectedSupermarkets.collectAsState()
     val selectedOptions = remember { mutableStateListOf(true, true, true) }
+
     val options = listOf("DIA", "Ahorramas", "Carrefour")
+
+    LaunchedEffect(Unit) {
+        options.forEachIndexed { index, label ->
+            selectedOptions[index] = selectedSupermarkets.contains(label)
+        }
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -144,15 +166,15 @@ fun Tiendas() {
                 ),
                 checked = selectedOptions[index],
                 onCheckedChange = {
-                    selectedOptions[index] = !selectedOptions[index]
+                    selectedOptions[index] = it
+                    val selected = options.filterIndexed { idx, _ ->
+                        selectedOptions[idx]
+                    }
+                    onSelectionChange(selected)
                 },
                 icon = { SegmentedButtonDefaults.Icon(selectedOptions[index]) },
                 label = {
-                    when (label) {
-                        "DIA" -> Text("DIA")
-                        "Ahorramas" -> Text("Ahorramas")
-                        "Carrefour" -> Text("Carrefour")
-                    }
+                    Text(label)
                 }
             )
         }

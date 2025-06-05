@@ -1,6 +1,6 @@
 package com.example.tsgapp
 
-import android.os.Bundle
+import androidx.compose.runtime.Composable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
@@ -15,7 +15,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,11 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tsgapp.ui.theme.TamañoLetra
 import com.example.tsgapp.ui.theme.ThemeState
+import android.os.Bundle
 
 class EliminarCuenta : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,8 +64,7 @@ fun ECuenta(){
                 ) {
                     Text(
                         "Aviso Legal – Eliminación de Cuenta de Usuario\n" +
-                                "Al utilizar nuestros servicios, usted acepta y comprende que la eliminación de su cuenta es un proceso irreversible que implica la pérdida permanente de todos los datos asociados a dicha cuenta. Este aviso tiene como finalidad informarle claramente sobre las consecuencias del cierre definitivo de su perfil.\n" +
-                                "Pulse aqui para ver todo el documento"
+                                "Al utilizar nuestros servicios, usted acepta..."
                         , fontSize = TamañoLetra.tamañoFuente.sp)
                 }
             }
@@ -92,7 +90,7 @@ fun ECuenta(){
 
 @Composable
 fun Texto() {
-    Box(){
+    Box{
         Column {
             Text(
                 "Aviso Legal – Eliminación de Cuenta de Usuario\n" +
@@ -154,10 +152,4 @@ fun RayaDivisora(){
     } else {
         Divider(modifier = Modifier.padding(vertical = 16.dp), color = Color.White)
     }
-}
-
-@Preview
-@Composable
-fun PreviewECuenta() {
-    ECuenta()
 }

@@ -19,7 +19,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -33,7 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tsgapp.ui.theme.TamañoLetra
@@ -59,7 +57,6 @@ fun VentanaCuenta() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        // Campos de entrada
 
         TextField(
             value = text1,
@@ -75,24 +72,18 @@ fun VentanaCuenta() {
             singleLine = true
         )
 
-        // Enlace de recuperación de contraseña
         Spacer(modifier = Modifier.height(15.dp))
         RecuperarContrasena()
 
-        // Separador con "or"
         Spacer(modifier = Modifier.height(30.dp))
         DividerWithText(text = "or")
 
-        // Botones de inicio de sesión
         Spacer(modifier = Modifier.height(30.dp))
         LoginButton(text = "Gmail", iconRes = R.drawable.gmail)
-        LoginButton(text = "Google", iconRes = R.drawable.google)
-        LoginButton(text = "X", iconRes = R.drawable.twitter)
-        LoginButton(text = "Facebook", iconRes = R.drawable.facebook)
+        LoginButton(text = "Google", iconRes = R.drawable.smartprice)
     }
 }
 
-// Componente para el enlace de recuperación de contraseña
 @Composable
 fun RecuperarContrasena() {
     Button(
@@ -109,7 +100,6 @@ fun RecuperarContrasena() {
     }
 }
 
-// Componente para el separador con texto
 @Composable
 fun DividerWithText(text: String) {
     Row(
@@ -136,7 +126,6 @@ fun DividerWithText(text: String) {
     }
 }
 
-// Componente reutilizable para botones con ícono
 @Composable
 fun LoginButton(text: String, iconRes: Int) {
     Spacer(modifier = Modifier.height(16.dp))

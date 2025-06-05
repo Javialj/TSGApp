@@ -38,6 +38,7 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,7 +54,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelStoreOwner
@@ -69,7 +69,7 @@ class VentanaPrincipal : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Principal()
+            principal()
         }
     }
 }
@@ -78,12 +78,15 @@ class VentanaPrincipal : ComponentActivity() {
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Principal(): String {
+fun principal(): String {
     val viewModel: ProductsViewModel = viewModel(
         viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner
     )
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    // Recoger las tiendas seleccionadas del ViewModel
+    val selectedSupermarkets by viewModel.selectedSupermarkets.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -96,6 +99,13 @@ fun Principal(): String {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SearchBar(
+                    leadingIcon = {
+                        Image(
+                            painter = painterResource(R.drawable.search),
+                            contentDescription = null,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    },
                     query = viewModel.query,
                     onQueryChange = { viewModel.updateQuery(it) },
                     onSearch = {
@@ -115,7 +125,6 @@ fun Principal(): String {
                     ),
                     content = {}
                 )
-
                 if (!ThemeState.isDarkMode) {
                     Image(
                         modifier = Modifier.size(80.dp).padding(top = 25.dp),
@@ -130,15 +139,12 @@ fun Principal(): String {
                     )
                 }
             }
-
             if (!ThemeState.isDarkMode) {
                 Divider(modifier = Modifier.padding(top = 16.dp), color = Color.Black)
             } else {
                 Divider(modifier = Modifier.padding(top = 16.dp), color = Color.White)
             }
         }
-
-
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -152,7 +158,6 @@ fun Principal(): String {
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 item {
-                    // Estado de carga
                     if (viewModel.isLoading) {
                         Box(
                             modifier = Modifier
@@ -162,67 +167,79 @@ fun Principal(): String {
                         ) {
                             CircularProgressIndicator()
                         }
-                    }
-
-                    else if (viewModel.errorMessage != null) {
+                    } else if (viewModel.errorMessage != null) {
                         Text(
                             text = "Error: ${viewModel.errorMessage}",
                             color = Color.Red,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(16.dp)
                         )
-                    }
-
-                    else {
-                        if (viewModel.productosDIA.isNotEmpty() || viewModel.productosAhorramas.isNotEmpty()) {
+                    } else {
+                        val hasProducts =
+                            (selectedSupermarkets.contains("DIA") && viewModel.productosDIA.isNotEmpty()) ||
+                                    (selectedSupermarkets.contains("Ahorramas") && viewModel.productosAhorramas.isNotEmpty()) ||
+                                    (selectedSupermarkets.contains("Carrefour") && viewModel.productosMercadona.isNotEmpty())
+                        if (hasProducts) {
                             Column {
-                                // Sección DIA
-                                if (viewModel.productosDIA.isNotEmpty()) {
-                                    HeaderSupermercado("Productos DIA") {
-                                        if (!ThemeState.isDarkMode){
-                                            Button(
-                                                modifier = Modifier.size(80.dp),
-                                                onClick = { Toast.makeText(context, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show() },
-                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(R.drawable.alert),
-                                                    contentDescription = null
-                                                )
-                                            }
-                                        } else {
-                                            Button(
-                                                modifier = Modifier.size(80.dp),
-                                                onClick = { Toast.makeText(context, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show() },
-                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(R.drawable.alertdark),
-                                                    contentDescription = null
-                                                )
+                                if (selectedSupermarkets.contains("DIA")) {
+                                    if (viewModel.productosDIA.isNotEmpty()) {
+                                        HeaderSupermercado("Productos DIA") {
+                                            if (!ThemeState.isDarkMode) {
+                                                Button(
+                                                    modifier = Modifier.size(80.dp),
+                                                    onClick = {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Puede variar el precio en tienda",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                    },
+                                                    colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                                ) {
+                                                    Image(
+                                                        painter = painterResource(R.drawable.alert),
+                                                        contentDescription = null
+                                                    )
+                                                }
+                                            } else {
+                                                Button(
+                                                    modifier = Modifier.size(80.dp),
+                                                    onClick = {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Puede variar el precio en tienda",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                    },
+                                                    colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                                ) {
+                                                    Image(
+                                                        painter = painterResource(R.drawable.alertdark),
+                                                        contentDescription = null
+                                                    )
+                                                }
                                             }
                                         }
+                                        ListaProductos(viewModel.productosDIA)
+                                    } else {
+                                        MensajeSinResultados("Productos DIA")
                                     }
-                                    ListaProductos(viewModel.productosDIA)
-                                } else {
-                                    MensajeSinResultados("Productos DIA")
                                 }
-
-                                if (viewModel.productosAhorramas.isNotEmpty()) {
-                                    HeaderSupermercado("Productos Ahorramas") {
+                                if (selectedSupermarkets.contains("Ahorramas")) {
+                                    if (viewModel.productosAhorramas.isNotEmpty()) {
+                                        HeaderSupermercado("Productos Ahorramas") {}
+                                        ListaProductos(viewModel.productosAhorramas)
+                                    } else {
+                                        MensajeSinResultados("Productos Ahorramas")
                                     }
-                                    ListaProductos(viewModel.productosAhorramas)
-                                } else {
-                                    MensajeSinResultados("Productos Ahorrmas")
                                 }
-
-                                if (viewModel.productosCarrefour.isNotEmpty()) {
-                                    HeaderSupermercado("Productos Carrefour") {
-
+                                if (selectedSupermarkets.contains("Carrefour")) {
+                                    if (viewModel.productosMercadona.isNotEmpty()) {
+                                        HeaderSupermercado("Productos Carrefour") {}
+                                        ListaProductos(viewModel.productosMercadona)
+                                    } else {
+                                        MensajeSinResultados("Productos Carrefour")
                                     }
-                                    ListaProductos(viewModel.productosCarrefour)
-                                } else {
-                                    MensajeSinResultados("Productos Carrefour")
                                 }
                             }
                         } else {
@@ -300,81 +317,106 @@ fun MensajeSinResultados(nombreSupermercado: String) {
 }
 
 @Composable
-fun ProductosInicio(){
+fun ProductosInicio() {
+    val viewModel: ProductsViewModel = viewModel()
+    val selectedSupermarkets by viewModel.selectedSupermarkets.collectAsState()
+    val contexto = LocalContext.current
+
     var productosDIA by remember { mutableStateOf<List<Producto>>(emptyList()) }
     var productosAhorramas by remember { mutableStateOf<List<Producto>>(emptyList()) }
-    var productosCarrefour by remember { mutableStateOf<List<Producto>>(emptyList()) }
+    var productosMercadona by remember { mutableStateOf<List<Producto>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
 
     val listacomienzo = listOf("Mazana", "Bolsa", "Yogurt", "Galletas", "Carne", "Refresco")
     val productoAleatorio = listacomienzo.random()
-    val contexto = LocalContext.current
-    LaunchedEffect(Unit) {
-        productosDIA = getProductosDIA(productoAleatorio)
-        productosAhorramas = getProductosAhorramas(productoAleatorio)
+
+    LaunchedEffect(selectedSupermarkets) {
+        isLoading = true
+        if (selectedSupermarkets.contains("DIA")) {
+            productosDIA = getProductosDIA(productoAleatorio)
+        }
+        if (selectedSupermarkets.contains("Ahorramas")) {
+            productosAhorramas = getProductosAhorramas(productoAleatorio)
+        }
+        if (selectedSupermarkets.contains("Mercadona")) {
+            productosMercadona = getProductosMercadona(productoAleatorio)
+        }
+        isLoading = false
     }
-    Column {
-        Row (
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-                if (!ThemeState.isDarkMode){
-                    Button(
-                        modifier = Modifier.size(80.dp),
-                        onClick = { Toast.makeText(contexto, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show() },
-                        colors = ButtonDefaults.buttonColors(Color.Transparent)
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.alert),
-                            contentDescription = null
-                        )
-                    }
-                } else {
-                    Button(
-                        modifier = Modifier.size(80.dp),
-                        onClick = { Toast.makeText(contexto, "Puede variar el precio en tienda", Toast.LENGTH_SHORT).show() },
-                        colors = ButtonDefaults.buttonColors(Color.Transparent)
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.alertdark),
-                            contentDescription = null
-                        )
+            CircularProgressIndicator()
+        }
+    } else {
+        Column {
+            // Mostrar solo si la tienda está seleccionada
+            if (selectedSupermarkets.contains("DIA") && productosDIA.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Productos DIA", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
+                }
+                LazyRow(
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp)
+                ) {
+                    items(productosDIA.size) { index ->
+                        ProductoItem(producto = productosDIA[index], context = contexto)
                     }
                 }
             }
-        }
-        LazyRow(
-            modifier = Modifier
-                .padding(top = 8.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp)
-        ) {
-            items(productosDIA.size) { index ->
-                ProductoItem(producto = productosDIA[index], context = contexto)
+
+            if (selectedSupermarkets.contains("Ahorramas") && productosAhorramas.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Productos Ahorramas", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
+                }
+                LazyRow(
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp)
+                ) {
+                    items(productosAhorramas.size) { index ->
+                        ProductoItem(producto = productosAhorramas[index], context = contexto)
+                    }
+                }
             }
-        }
-        Row (
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Productos Ahorramas", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-        }
-        LazyRow(
-            modifier = Modifier
-                .padding(top = 8.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp)
-        ) {
-            items(productosAhorramas.size) { index ->
-                ProductoItem(producto = productosAhorramas[index], context = contexto)
+
+            if (selectedSupermarkets.contains("Carrefour") && productosMercadona.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Productos Carrefour", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
+                }
+                LazyRow(
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp)
+                ) {
+                    items(productosMercadona.size) { index ->
+                        ProductoItem(producto = productosMercadona[index], context = contexto)
+                    }
+                }
             }
         }
     }
