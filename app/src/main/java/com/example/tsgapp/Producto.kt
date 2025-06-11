@@ -9,7 +9,6 @@ import java.net.URLEncoder
 
 data class Producto(val nombre: String, val precio: String, val imagenUrl: String, val ofertaproducto: String, val ofertaprecio: String, val ofertaespe: String, val supermercado: String)
 suspend fun getProductosDIA(query: String): List<Producto> {
-    //<p data-test-id="search-product-card-dia-club" class="search-product-card__dia-club">Oferta exclusiva CLUB Dia</p>
     val encodedQuery = URLEncoder.encode(query, "UTF-8").replace("+", "%20")
     return try {
         val url = "https://www.dia.es/search?q=$encodedQuery"
@@ -79,7 +78,6 @@ suspend fun getProductosMercadona(query: String): List<Producto> {
     val encodedQuery = URLEncoder.encode(query, "UTF-8").replace("+", "%20")
 
     return try {
-        // 1. Enviar código postal y obtener cookies
         val postalCodeUrl = "https://tienda.mercadona.es/"
         val postalCode = "28823"
 
@@ -91,7 +89,6 @@ suspend fun getProductosMercadona(query: String): List<Producto> {
             .execute()
             .cookies()
 
-        // 2. Realizar la búsqueda con las cookies
         val url = "https://tienda.mercadona.es/search-results?query=$encodedQuery"
         val document = withContext(Dispatchers.IO) {
             Jsoup.connect(url)
@@ -106,7 +103,6 @@ suspend fun getProductosMercadona(query: String): List<Producto> {
                 .get()
         }
 
-        // 3. Parsear resultados
         val items = document.select("div.product-cell") // Usar la clase correcta
         items.mapNotNull { element ->
             val nombre = element.selectFirst("h4.subhead1-r.product-cell__description-name")?.text().orEmpty()
@@ -126,4 +122,4 @@ suspend fun getProductosMercadona(query: String): List<Producto> {
         Log.e("JsoupError", "Error fetching data", e)
         emptyList()
     }
-}//https://tienda.mercadona.es/search-results?query=
+}
