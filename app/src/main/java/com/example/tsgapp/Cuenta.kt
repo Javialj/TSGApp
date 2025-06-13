@@ -34,19 +34,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.tsgapp.ui.theme.TamañoLetra
 
 class Cuenta : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            VentanaCuenta()
+
         }
     }
 }
 
 @Composable
-fun VentanaCuenta() {
+fun VentanaCuenta(navController: NavController) {
     var text1 by rememberSaveable { mutableStateOf("") }
     var text2 by rememberSaveable { mutableStateOf("") }
 
@@ -72,33 +73,63 @@ fun VentanaCuenta() {
             singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(15.dp))
-        RecuperarContrasena()
-
         Spacer(modifier = Modifier.height(30.dp))
         DividerWithText(text = "or")
 
         Spacer(modifier = Modifier.height(30.dp))
-        LoginButton(text = "Gmail", iconRes = R.drawable.gmail)
-        LoginButton(text = "Google", iconRes = R.drawable.smartprice)
+
+        Text("Registrarse:", fontSize = TamañoLetra.tamañoFuente.sp)
+        Button(
+            onClick = { navController.navigate("signUp") },
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Gmail",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = TamañoLetra.tamañoFuente.sp
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.gmail),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.CenterStart)
+                )
+            }
+        }
+        Button(
+            onClick = { /* Acción al hacer clic */ },
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "SmartPrice",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = TamañoLetra.tamañoFuente.sp
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.smartprice),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.CenterStart)
+                )
+            }
+        }
     }
 }
 
-@Composable
-fun RecuperarContrasena() {
-    Button(
-        onClick = {/*TODO()*/},
-        colors = ButtonDefaults.buttonColors(Color.Transparent)
-    ) {
-        Text(
-            text = "Olvidaste tu contraseña?",
-            fontSize = TamañoLetra.tamañoFuente.sp,
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = Color.Blue
-        )
-    }
-}
 
 @Composable
 fun DividerWithText(text: String) {
@@ -125,33 +156,3 @@ fun DividerWithText(text: String) {
         )
     }
 }
-
-@Composable
-fun LoginButton(text: String, iconRes: Int) {
-    Spacer(modifier = Modifier.height(16.dp))
-    Button(
-        onClick = { /* Acción al hacer clic */ },
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = text,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-                fontSize = TamañoLetra.tamañoFuente.sp
-            )
-            Image(
-                painter = painterResource(id = iconRes),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(24.dp)
-                    .align(Alignment.CenterStart)
-            )
-        }
-    }
-}
-

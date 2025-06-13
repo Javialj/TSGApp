@@ -66,8 +66,6 @@ class Personalizacion : ComponentActivity() {
 @Composable
 fun AjustesPersonalizados() {
     val contexto = LocalContext.current
-    var mostrarMenu by remember { mutableStateOf(false) }
-    var idiomaSeleccionado by remember { mutableStateOf("Español") }
     val primaryColor = MaterialTheme.colorScheme.primary
 
 
@@ -172,66 +170,9 @@ fun AjustesPersonalizados() {
                         .clip(CircleShape)
                         .background(primaryColor)
                         .border(2.dp, primaryColor)
-                )
-            }
-        )
-
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Idioma:", fontSize = TamañoLetra.tamañoFuente.sp)
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Box {
-                Button(
-                    onClick = { mostrarMenu = true },
-                    modifier = Modifier
-                        .width(150.dp)
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    ),
-                    contentPadding = PaddingValues(8.dp)
-                ) {
-                    Text(
-                        text = idiomaSeleccionado,
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Start,
-                        fontSize = TamañoLetra.tamañoFuente.sp
-                    )
-                    Icon(
-                        painter = painterResource(id = R.drawable.down),
-                        contentDescription = "Seleccionar idioma",
-                        modifier = Modifier.size(20.dp)
                     )
                 }
-
-                DropdownMenu(
-                    expanded = mostrarMenu,
-                    onDismissRequest = { mostrarMenu = false },
-                    modifier = Modifier.width(150.dp)
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Español", fontSize = TamañoLetra.tamañoFuente.sp) },
-                        onClick = {
-                            idiomaSeleccionado = "Español"
-                            mostrarMenu = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Inglés", fontSize = TamañoLetra.tamañoFuente.sp) },
-                        onClick = {
-                            idiomaSeleccionado = "Inglés"
-                            mostrarMenu = false
-                            }
-                        )
-                    }
-                }
-            }
+            )
         }
     }
 }

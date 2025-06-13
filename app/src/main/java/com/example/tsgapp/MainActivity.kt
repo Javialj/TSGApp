@@ -49,12 +49,16 @@ import com.example.tsgapp.ui.theme.ProductsViewModel
 import com.example.tsgapp.ui.theme.TSGAppTheme
 import com.example.tsgapp.ui.theme.TamañoLetra
 import com.example.tsgapp.ui.theme.ThemeState
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ThemeState.loadTheme(this)
         TamañoLetra.loadFont(this)
+        FirebaseApp.initializeApp(this)
+        val auth = FirebaseAuth.getInstance()
         setContent {
             TSGAppTheme {
                 Surface {
@@ -66,8 +70,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(auth: FirebaseAuth = FirebaseAuth.getInstance()) {
     val navController = rememberNavController()
+    val firebaseUser = FirebaseAuth.getInstance().currentUser
     Scaffold(
         modifier = Modifier.navigationBarsPadding(),
         bottomBar = { BarraDespla(navController) }
@@ -83,7 +88,17 @@ fun AppNavigation() {
             composable("ajustes") { Ajustes(navController) }
             composable("personalizacion") { AjustesPersonalizados() }
             composable("eliminar_cuenta") { ECuenta() }
-            composable("cuenta") { VentanaCuenta() }
+            composable("cuenta") { VentanaCuenta(navController) }
+            composable("logIn") {
+                LoginScreen(auth) {
+                    navController.navigate("principal") {
+                        popUpTo("logIn") { inclusive = true }
+                    }
+                }
+            }
+            composable("signUp") {
+                SignUpScreen(auth)
+            }
         }
     }
 }
@@ -106,75 +121,6 @@ fun Ajustes(navController: NavController) {
             SettingItem("Personalización") { navController.navigate("personalizacion") }
             SettingItem("Eliminar cuenta") { navController.navigate("eliminar_cuenta") }
 
-            Spacer(modifier = Modifier.padding(20.dp))
-
-            Tiendas(
-                onSelectionChange = { selected ->
-                    viewModel.updateSelectedSupermarkets(selected) // Actualiza el ViewModel
-                }
-            )
-        }
-    }
-}
-
-
-@Composable
-fun Tiendas( onSelectionChange: (List<String>) -> Unit) {
-    val viewModel: ProductsViewModel = viewModel() // Obtiene el ViewModel compartido
-    val selectedSupermarkets by viewModel.selectedSupermarkets.collectAsState()
-    val selectedOptions = remember { mutableStateListOf(true, true, true) }
-
-    val options = listOf("DIA", "Ahorramas", "Carrefour")
-
-    LaunchedEffect(Unit) {
-        options.forEachIndexed { index, label ->
-            selectedOptions[index] = selectedSupermarkets.contains(label)
-        }
-    }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Divider(
-            modifier = Modifier.weight(1f),
-            color = Color.Gray,
-            thickness = 1.dp
-        )
-        Text(
-            text = "Tiendas",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(horizontal = 8.dp),
-            color = Color.Gray
-        )
-        Divider(
-            modifier = Modifier.weight(1f),
-            color = Color.Gray,
-            thickness = 1.dp
-        )
-    }
-
-    MultiChoiceSegmentedButtonRow {
-        options.forEachIndexed { index, label ->
-            SegmentedButton(
-                shape = SegmentedButtonDefaults.itemShape(
-                    index = index,
-                    count = options.size
-                ),
-                checked = selectedOptions[index],
-                onCheckedChange = {
-                    selectedOptions[index] = it
-                    val selected = options.filterIndexed { idx, _ ->
-                        selectedOptions[idx]
-                    }
-                    onSelectionChange(selected)
-                },
-                icon = { SegmentedButtonDefaults.Icon(selectedOptions[index]) },
-                label = {
-                    Text(label)
-                }
-            )
         }
     }
 }
