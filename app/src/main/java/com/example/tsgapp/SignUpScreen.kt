@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -26,8 +27,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
 import com.example.tsgapp.ui.theme.Printgris
 import com.example.tsgapp.ui.theme.SelectedField
+import com.example.tsgapp.ui.theme.TamañoLetra
 import com.example.tsgapp.ui.theme.UnselectedField
 import com.google.firebase.auth.FirebaseAuth
 
@@ -36,16 +39,18 @@ fun SignUpScreen(auth: FirebaseAuth) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var cpassword by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Printgris)
-            .padding(horizontal = 32.dp),
+            .padding(horizontal = 32.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Row {
-            Text("Email", color = Color.White, fontWeight = FontWeight.Bold)
+        Column {
+            Text("Email", color = Color.White, fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
             TextField(
                 value = email,
                 onValueChange = { email = it },
@@ -57,8 +62,8 @@ fun SignUpScreen(auth: FirebaseAuth) {
             )
         }
         Spacer(Modifier.height(48.dp))
-        Row {
-            Text("Password", color = Color.White, fontWeight = FontWeight.Bold)
+        Column {
+            Text("Password", color = Color.White, fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
             TextField(
                 value = password, onValueChange = { password = it },
                 modifier = Modifier.fillMaxWidth(),
@@ -69,8 +74,8 @@ fun SignUpScreen(auth: FirebaseAuth) {
             )
         }
         Spacer(Modifier.height(48.dp))
-        Row {
-            Text("Confirm Password", color = Color.White, fontWeight = FontWeight.Bold)
+        Column {
+            Text("Confirm Password", color = Color.White, fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
             TextField(
                 value = cpassword, onValueChange = { cpassword = it },
                 modifier = Modifier.fillMaxWidth(),
@@ -84,24 +89,31 @@ fun SignUpScreen(auth: FirebaseAuth) {
             Text(
                 text = "Las contraseñas no coinciden",
                 color = Color.Red,
-                fontSize = 12.sp
+                fontSize = TamañoLetra.tamañoFuente.sp
             )
         }
         Spacer(Modifier.height(48.dp))
         Button(onClick = {
-            // Validaciones
+            // Limpiar mensaje anterior
+            errorMessage = ""
+
             if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Log.e("Registro", "Correo inválido")
+                errorMessage = "Correo electrónico inválido"
+                return@Button
+            }
+
+            if (!email.endsWith("@gmail.com")) {
+                errorMessage = "Solo se permiten correos de Gmail (@gmail.com)"
                 return@Button
             }
 
             if (password.length < 6) {
-                Log.e("Registro", "La contraseña debe tener al menos 6 caracteres")
+                errorMessage = "La contraseña debe tener al menos 6 caracteres"
                 return@Button
             }
 
             if (password != cpassword) {
-                Log.e("Registro", "Las contraseñas no coinciden")
+                errorMessage = "Las contraseñas no coinciden"
                 return@Button
             }
 
@@ -112,6 +124,7 @@ fun SignUpScreen(auth: FirebaseAuth) {
                         Log.i("Registro", "Usuario creado correctamente")
                     } else {
                         Log.e("Registro", "Error al crear cuenta: ${task.exception?.message}", task.exception)
+                        errorMessage = task.exception?.message ?: "Error desconocido"
                     }
                 }
         }) {
