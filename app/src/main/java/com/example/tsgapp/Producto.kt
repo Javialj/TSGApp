@@ -3,7 +3,6 @@ package com.example.tsgapp
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.jsoup.Connection
 import org.jsoup.Jsoup
 import java.net.URLEncoder
 
@@ -70,56 +69,6 @@ suspend fun getProductosAhorramas(query: String): List<Producto> {
         }
     } catch (e: Exception) {
         Log.e("JsoupError", "Error parsing HTML", e)
-        emptyList()
-    }
-}
-
-suspend fun getProductosMercadona(query: String): List<Producto> {
-    val encodedQuery = URLEncoder.encode(query, "UTF-8").replace("+", "%20")
-
-    return try {
-        val postalCodeUrl = "https://tienda.mercadona.es/"
-        val postalCode = "28823"
-
-        val cookies = Jsoup.connect(postalCodeUrl)
-            .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36")
-            .header("Content-Type", "application/x-www-form-urlencoded")
-            .method(Connection.Method.POST)
-            .data("postalCode", postalCode)
-            .execute()
-            .cookies()
-
-        val url = "https://tienda.mercadona.es/search-results?query=$encodedQuery"
-        val document = withContext(Dispatchers.IO) {
-            Jsoup.connect(url)
-                .data("postalCode", postalCode)
-                .userAgent("Mozilla/5.0...")
-                .headers(mapOf(
-                    "Accept" to "text/html,application/xhtml+xml...",
-                    "Accept-Language" to "es-ES,es;q=0.9,en;q=0.8",
-                    "Cookie" to cookies.entries.joinToString("; ") { "${it.key}=${it.value}" }
-                ))
-                .timeout(30_000)
-                .get()
-        }
-
-        val items = document.select("div.product-cell") // Usar la clase correcta
-        items.mapNotNull { element ->
-            val nombre = element.selectFirst("h4.subhead1-r.product-cell__description-name")?.text().orEmpty()
-            val precio = element.selectFirst("p.product-price__unit-price")?.text().orEmpty()
-            val imageUrl = element.selectFirst("img")?.absUrl("src").orEmpty()
-            val ofertaproducto = ""
-            val ofertaprecio = ""
-            val ofertaespe = ""
-            val supermercado = "Carrefour"
-            if (nombre.isNotBlank() && imageUrl.isNotBlank()) {
-                Producto(nombre, precio, imageUrl, ofertaproducto, ofertaprecio, ofertaespe, supermercado)
-            } else {
-                null
-            }
-        }
-    } catch (e: Exception) {
-        Log.e("JsoupError", "Error fetching data", e)
         emptyList()
     }
 }

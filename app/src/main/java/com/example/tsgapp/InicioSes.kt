@@ -29,18 +29,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.tsgapp.ui.theme.IntenseRed
-import com.example.tsgapp.ui.theme.Printgris
 import com.example.tsgapp.ui.theme.backgrowi2
-import com.example.tsgapp.ui.theme.grenprint
 import com.example.tsgapp.ui.theme.pitnrua2
 import com.example.tsgapp.ui.theme.purpvr2
 import com.example.tsgapp.ui.theme.sombris
 import com.example.tsgapp.ui.theme.yellowprin2
 
-@Preview
 @Composable
-fun InicioSes( navigateToLogin:() -> Unit ={}, navigateToSignUp: () -> Unit = {}){
+fun InicioSes(navController: NavController, navigateToLogin:() -> Unit ={}, navigateToSignUp: () -> Unit = {} ){
 
     Column (
         modifier = Modifier
@@ -77,7 +75,7 @@ fun InicioSes( navigateToLogin:() -> Unit ={}, navigateToSignUp: () -> Unit = {}
         Spacer(Modifier.weight(0.5f))
 
         Button(
-            onClick = { navigateToLogin()},
+            onClick = { navController.navigate("signUp")},
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
@@ -94,7 +92,7 @@ fun InicioSes( navigateToLogin:() -> Unit ={}, navigateToSignUp: () -> Unit = {}
         }
         Spacer(Modifier.height(8.dp))
         CustomButton(
-            Modifier.clickable{ navigateToLogin},
+            Modifier.clickable{ navController.navigate("logInGmail") },
             painterResource(id = R.drawable.googlelogo),
             "Google"
         )
@@ -102,7 +100,7 @@ fun InicioSes( navigateToLogin:() -> Unit ={}, navigateToSignUp: () -> Unit = {}
             text = "logn In",
             color = Color.White,
             modifier = Modifier.padding(10.dp)
-                .clickable{navigateToSignUp()},
+                .clickable{ navController.navigate("logIn") },
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.weight(1f))

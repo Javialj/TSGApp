@@ -8,24 +8,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.tsgapp.Producto
 import com.example.tsgapp.getProductosAhorramas
 import com.example.tsgapp.getProductosDIA
-import com.example.tsgapp.getProductosMercadona
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ProductsViewModel : ViewModel() {
-    private val _selectedSupermarkets = MutableStateFlow<List<String>>(
-        listOf("DIA", "Ahorramas", "Carrefour")
-    )
-    val selectedSupermarkets = _selectedSupermarkets.asStateFlow()
 
-    fun updateSelectedSupermarkets(supermarkets: List<String>) {
-        _selectedSupermarkets.value = supermarkets
-    }
     var query by mutableStateOf("")
     var productosDIA by mutableStateOf<List<Producto>>(emptyList())
     var productosAhorramas by mutableStateOf<List<Producto>>(emptyList())
-    var productosMercadona by mutableStateOf<List<Producto>>(emptyList())
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
 
@@ -41,9 +30,8 @@ class ProductsViewModel : ViewModel() {
             try {
                 productosDIA = getProductosDIA(query)
                 productosAhorramas = getProductosAhorramas(query)
-                productosMercadona = getProductosMercadona(query)
             } catch (e: Exception) {
-                errorMessage = "Error al buscar productos"
+                errorMessage = "Error al buscar productos: ${e.message}"
             } finally {
                 isLoading = false
             }

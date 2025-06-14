@@ -78,15 +78,12 @@ class VentanaPrincipal : ComponentActivity() {
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun principal(): String {
+fun principal() {
     val viewModel: ProductsViewModel = viewModel(
         viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner
     )
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-
-    // Recoger las tiendas seleccionadas del ViewModel
-    val selectedSupermarkets by viewModel.selectedSupermarkets.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -145,6 +142,7 @@ fun principal(): String {
                 Divider(modifier = Modifier.padding(top = 16.dp), color = Color.White)
             }
         }
+
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -175,71 +173,57 @@ fun principal(): String {
                             modifier = Modifier.padding(16.dp)
                         )
                     } else {
-                        val hasProducts =
-                            (selectedSupermarkets.contains("DIA") && viewModel.productosDIA.isNotEmpty()) ||
-                                    (selectedSupermarkets.contains("Ahorramas") && viewModel.productosAhorramas.isNotEmpty()) ||
-                                    (selectedSupermarkets.contains("Carrefour") && viewModel.productosMercadona.isNotEmpty())
-                        if (hasProducts) {
+                        if (viewModel.productosDIA.isNotEmpty() || viewModel.productosAhorramas.isNotEmpty()) {
                             Column {
-                                if (selectedSupermarkets.contains("DIA")) {
-                                    if (viewModel.productosDIA.isNotEmpty()) {
-                                        HeaderSupermercado("Productos DIA") {
-                                            if (!ThemeState.isDarkMode) {
-                                                Button(
-                                                    modifier = Modifier.size(80.dp),
-                                                    onClick = {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Puede variar el precio en tienda",
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                    },
-                                                    colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                                ) {
-                                                    Image(
-                                                        painter = painterResource(R.drawable.alert),
-                                                        contentDescription = null
-                                                    )
-                                                }
-                                            } else {
-                                                Button(
-                                                    modifier = Modifier.size(80.dp),
-                                                    onClick = {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Puede variar el precio en tienda",
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                    },
-                                                    colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                                ) {
-                                                    Image(
-                                                        painter = painterResource(R.drawable.alertdark),
-                                                        contentDescription = null
-                                                    )
-                                                }
+                                // Sección DIA
+                                if (viewModel.productosDIA.isNotEmpty()) {
+                                    HeaderSupermercado("Productos DIA") {
+                                        if (!ThemeState.isDarkMode) {
+                                            Button(
+                                                modifier = Modifier.size(80.dp),
+                                                onClick = {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Puede variar el precio en tienda",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                },
+                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(R.drawable.alert),
+                                                    contentDescription = null
+                                                )
+                                            }
+                                        } else {
+                                            Button(
+                                                modifier = Modifier.size(80.dp),
+                                                onClick = {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Puede variar el precio en tienda",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                },
+                                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(R.drawable.alertdark),
+                                                    contentDescription = null
+                                                )
                                             }
                                         }
-                                        ListaProductos(viewModel.productosDIA)
-                                    } else {
-                                        MensajeSinResultados("Productos DIA")
                                     }
+                                    ListaProductos(viewModel.productosDIA)
+                                } else {
+                                    MensajeSinResultados("Productos DIA")
                                 }
-                                if (selectedSupermarkets.contains("Ahorramas")) {
-                                    if (viewModel.productosAhorramas.isNotEmpty()) {
-                                        HeaderSupermercado("Productos Ahorramas") {}
-                                        ListaProductos(viewModel.productosAhorramas)
-                                    } else {
-                                        MensajeSinResultados("Productos Ahorramas")
-                                    }
-                                }
-                                if (selectedSupermarkets.contains("Carrefour")) {
-                                    if (viewModel.productosMercadona.isNotEmpty()) {
-                                        HeaderSupermercado("Productos Carrefour") {}
-                                        ListaProductos(viewModel.productosMercadona)
-                                    } else {
-                                        MensajeSinResultados("Productos Carrefour")
-                                    }
+
+                                if (viewModel.productosAhorramas.isNotEmpty()) {
+                                    HeaderSupermercado("Productos Ahorramas") {}
+                                    ListaProductos(viewModel.productosAhorramas)
+                                } else {
+                                    MensajeSinResultados("Productos Ahorramas")
                                 }
                             }
                         } else {
@@ -250,7 +234,6 @@ fun principal(): String {
             }
         }
     }
-    return viewModel.query
 }
 
 @Composable
@@ -318,29 +301,18 @@ fun MensajeSinResultados(nombreSupermercado: String) {
 
 @Composable
 fun ProductosInicio() {
-    val viewModel: ProductsViewModel = viewModel()
-    val selectedSupermarkets by viewModel.selectedSupermarkets.collectAsState()
-    val contexto = LocalContext.current
-
     var productosDIA by remember { mutableStateOf<List<Producto>>(emptyList()) }
     var productosAhorramas by remember { mutableStateOf<List<Producto>>(emptyList()) }
-    var productosMercadona by remember { mutableStateOf<List<Producto>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    val contexto = LocalContext.current
 
-    val listacomienzo = listOf("Mazana", "Bolsa", "Yogurt", "Galletas", "Carne", "Refresco")
+    val listacomienzo = listOf("Manzana", "Bolsa", "Yogurt", "Galletas", "Carne", "Refresco")
     val productoAleatorio = listacomienzo.random()
 
-    LaunchedEffect(selectedSupermarkets) {
+    LaunchedEffect(Unit) {
         isLoading = true
-        if (selectedSupermarkets.contains("DIA")) {
-            productosDIA = getProductosDIA(productoAleatorio)
-        }
-        if (selectedSupermarkets.contains("Ahorramas")) {
-            productosAhorramas = getProductosAhorramas(productoAleatorio)
-        }
-        if (selectedSupermarkets.contains("Mercadona")) {
-            productosMercadona = getProductosMercadona(productoAleatorio)
-        }
+        productosDIA = getProductosDIA(productoAleatorio)
+        productosAhorramas = getProductosAhorramas(productoAleatorio)
         isLoading = false
     }
 
@@ -355,8 +327,7 @@ fun ProductosInicio() {
         }
     } else {
         Column {
-            // Mostrar solo si la tienda está seleccionada
-            if (selectedSupermarkets.contains("DIA") && productosDIA.isNotEmpty()) {
+            if (productosDIA.isNotEmpty()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -376,8 +347,7 @@ fun ProductosInicio() {
                     }
                 }
             }
-
-            if (selectedSupermarkets.contains("Ahorramas") && productosAhorramas.isNotEmpty()) {
+            if (productosAhorramas.isNotEmpty()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -394,27 +364,6 @@ fun ProductosInicio() {
                 ) {
                     items(productosAhorramas.size) { index ->
                         ProductoItem(producto = productosAhorramas[index], context = contexto)
-                    }
-                }
-            }
-
-            if (selectedSupermarkets.contains("Carrefour") && productosMercadona.isNotEmpty()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Productos Carrefour", fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
-                }
-                LazyRow(
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp)
-                ) {
-                    items(productosMercadona.size) { index ->
-                        ProductoItem(producto = productosMercadona[index], context = contexto)
                     }
                 }
             }

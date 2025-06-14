@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,32 +19,22 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.MultiChoiceSegmentedButtonRow
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.tsgapp.ui.theme.ProductsViewModel
 import com.example.tsgapp.ui.theme.TSGAppTheme
 import com.example.tsgapp.ui.theme.TamañoLetra
 import com.example.tsgapp.ui.theme.ThemeState
@@ -72,14 +61,20 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation(auth: FirebaseAuth = FirebaseAuth.getInstance()) {
     val navController = rememberNavController()
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+
     val firebaseUser = FirebaseAuth.getInstance().currentUser
     Scaffold(
         modifier = Modifier.navigationBarsPadding(),
-        bottomBar = { BarraDespla(navController) }
+        bottomBar = {
+            if (currentRoute in listOf("principal", "favoritos", "ajustes")) {
+                BarraDespla(navController)
+            }
+        }
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = "welcome",
+            startDestination = "cuenta",
             modifier = Modifier.padding(paddingValues)
         ) {
             composable("welcome") { principal() }
@@ -88,16 +83,23 @@ fun AppNavigation(auth: FirebaseAuth = FirebaseAuth.getInstance()) {
             composable("ajustes") { Ajustes(navController) }
             composable("personalizacion") { AjustesPersonalizados() }
             composable("eliminar_cuenta") { ECuenta() }
-            composable("cuenta") { VentanaCuenta(navController) }
+            composable("cuenta") { InicioSes(navController) }
             composable("logIn") {
-                LoginScreen(auth) {
+                LoginScreen(navController, auth) {
                     navController.navigate("principal") {
                         popUpTo("logIn") { inclusive = true }
                     }
                 }
             }
+            composable("logInGmail") {
+                LoginScreenGmail(navController, auth) {
+                    navController.navigate("principal") {
+                        popUpTo("logInGmail") { inclusive = true }
+                    }
+                }
+            }
             composable("signUp") {
-                SignUpScreen(auth)
+                SignUpScreen(navController, auth)
             }
         }
     }
@@ -105,7 +107,6 @@ fun AppNavigation(auth: FirebaseAuth = FirebaseAuth.getInstance()) {
 
 @Composable
 fun Ajustes(navController: NavController) {
-    val viewModel: ProductsViewModel = viewModel()
     Box(
         modifier = Modifier.fillMaxSize()
     ){
