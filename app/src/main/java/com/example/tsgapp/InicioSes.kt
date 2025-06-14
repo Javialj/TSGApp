@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -75,7 +74,7 @@ fun InicioSes(navController: NavController, navigateToLogin:() -> Unit ={}, navi
         Spacer(Modifier.weight(0.5f))
 
         Button(
-            onClick = { navController.navigate("signUp")},
+            onClick = { navController.navigate("signUp") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)

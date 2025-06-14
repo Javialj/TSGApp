@@ -59,7 +59,7 @@ fun SignUpScreen(navController: NavController, auth: FirebaseAuth) {
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        Text("Email", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 40.sp)
+        Text("Email", color = Color.White, fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
         TextField(
             value = email,
             onValueChange = { email = it },
@@ -70,7 +70,7 @@ fun SignUpScreen(navController: NavController, auth: FirebaseAuth) {
             )
         )
         Spacer(Modifier.height(48.dp))
-        Text("Password", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 40.sp)
+        Text("Password", color = Color.White, fontWeight = FontWeight.Bold, fontSize = TamañoLetra.tamañoFuente.sp)
         TextField(
             value = password, onValueChange = { password = it },
             modifier = Modifier.fillMaxWidth(),

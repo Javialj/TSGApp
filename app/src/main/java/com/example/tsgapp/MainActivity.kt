@@ -23,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -67,23 +68,24 @@ fun AppNavigation(auth: FirebaseAuth = FirebaseAuth.getInstance()) {
     Scaffold(
         modifier = Modifier.navigationBarsPadding(),
         bottomBar = {
-            if (currentRoute in listOf("principal", "favoritos", "ajustes")) {
+            if (currentRoute in listOf("principal", "favoritos", "ajustes", "personalizacion", "eliminar_cuenta", "cuenta")) {
                 BarraDespla(navController)
             }
         }
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = "cuenta",
+            startDestination = "initial",
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable("welcome") { principal() }
+            composable("initial") { InitialScreen(navController, auth) }
+            composable("welcome") { InicioSes(navController) }
             composable("principal") { principal() }
             composable("favoritos") { Favoritos() }
             composable("ajustes") { Ajustes(navController) }
             composable("personalizacion") { AjustesPersonalizados() }
             composable("eliminar_cuenta") { ECuenta() }
-            composable("cuenta") { InicioSes(navController) }
+            composable("cuenta") { VentanaCuenta( navController) }
             composable("logIn") {
                 LoginScreen(navController, auth) {
                     navController.navigate("principal") {
@@ -101,6 +103,20 @@ fun AppNavigation(auth: FirebaseAuth = FirebaseAuth.getInstance()) {
             composable("signUp") {
                 SignUpScreen(navController, auth)
             }
+        }
+    }
+}
+
+@Composable
+fun InitialScreen(navController: NavController, auth: FirebaseAuth) {
+    val user = auth.currentUser
+    LaunchedEffect(user) {
+        if (user != null) {
+            navController.navigate("principal") {
+                popUpTo("welcome") { inclusive = true }
+            }
+        } else {
+            navController.navigate("welcome")
         }
     }
 }
