@@ -27,27 +27,112 @@ import androidx.compose.ui.unit.sp
 import com.example.tsgapp.ui.theme.TamañoLetra
 import com.example.tsgapp.ui.theme.ThemeState
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.navigation.NavController
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuth
 
 class EliminarCuenta : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ECuenta()
+
         }
     }
 }
 
 @Composable
-fun ECuenta(){
+fun ECuenta(navController: NavController) {
+    val context = LocalContext.current
+    val user = FirebaseAuth.getInstance().currentUser
     val scrollState = rememberScrollState()
     var expandido by remember { mutableStateOf(false) }
+    var mostrarDialogo by remember { mutableStateOf(false) }
+    var password by remember { mutableStateOf("") }
+
+    // Mostrar diálogo para contraseña
+    if (mostrarDialogo) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogo = false },
+            title = { Text("Eliminar cuenta") },
+            text = {
+                Column {
+                    Text("Para continuar, ingresa tu contraseña:")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Contraseña") },
+                        singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (password.isNotEmpty() && user != null && user.email != null) {
+                            val credential = EmailAuthProvider.getCredential(user.email!!, password)
+
+                            user.reauthenticate(credential)
+                                .addOnSuccessListener {
+                                    // Reautenticado correctamente
+                                    user.delete()
+                                        .addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                Toast.makeText(context, "Cuenta eliminada", Toast.LENGTH_SHORT).show()
+                                            } else {
+                                                Toast.makeText(context, "Error al eliminar: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                                            }
+                                        }
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(context, "Error al reautenticar: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
+
+                            mostrarDialogo = false
+                        } else {
+                            Toast.makeText(context, "Por favor ingresa tu contraseña", Toast.LENGTH_SHORT).show()
+                        }
+                        navController?.navigate("initial")
+                    }
+                ) {
+                    Text("Eliminar cuenta")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarDialogo = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(
             modifier = Modifier.padding(vertical = TamañoLetra.tamañoFuente.dp),
-            onClick = {/**/}
+            onClick = {
+                if (user == null) {
+                    Toast.makeText(context, "No hay usuario autenticado", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Solicitar contraseña antes de eliminar
+                    mostrarDialogo = true
+                }
+            }
         ) {
             Text("Eliminar cuenta")
         }
@@ -56,7 +141,7 @@ fun ECuenta(){
             Card(
                 modifier = Modifier
                     .padding(horizontal = 50.dp)
-                    .clickable{ expandido = !expandido }
+                    .clickable { expandido = !expandido }
             ) {
                 Box(
                     modifier = Modifier
@@ -64,16 +149,16 @@ fun ECuenta(){
                 ) {
                     Text(
                         "Aviso Legal – Eliminación de Cuenta de Usuario\n" +
-                                "Al utilizar nuestros servicios, usted acepta..."
-                        , fontSize = TamañoLetra.tamañoFuente.sp)
+                                "Al utilizar nuestros servicios, usted acepta...",
+                        fontSize = TamañoLetra.tamañoFuente.sp
+                    )
                 }
             }
         } else {
             Card(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
-                    .clickable{ expandido = !expandido }
-                
+                    .clickable { expandido = !expandido }
             ) {
                 Box(
                     modifier = Modifier

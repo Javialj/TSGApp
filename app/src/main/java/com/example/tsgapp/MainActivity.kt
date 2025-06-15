@@ -84,8 +84,8 @@ fun AppNavigation(auth: FirebaseAuth = FirebaseAuth.getInstance()) {
             composable("favoritos") { Favoritos() }
             composable("ajustes") { Ajustes(navController) }
             composable("personalizacion") { AjustesPersonalizados() }
-            composable("eliminar_cuenta") { ECuenta() }
-            composable("cuenta") { VentanaCuenta( navController) }
+            composable("eliminar_cuenta") { ECuenta(navController) }
+            composable("cuenta") { VentanaCuenta(navController) }
             composable("logIn") {
                 LoginScreen(navController, auth) {
                     navController.navigate("principal") {
